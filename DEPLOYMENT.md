@@ -21,11 +21,13 @@ This guide explains how to deploy the WLWL Foundation application using Dokploy.
 ### 2. Configure Deployment Settings
 
 #### Docker Configuration
+
 - **Dockerfile**: `Dockerfile` (at project root)
 - **Build Context**: `/` (project root)
 - **Port**: `5000`
 
 #### Environment Variables
+
 Add the following environment variables:
 
 ```
@@ -35,6 +37,7 @@ VUE_APP_I18N_FALLBACK_LOCALE=en
 ```
 
 #### Domains
+
 - Add your domain(s) to the deployment
 - Enable SSL/TLS if needed
 
@@ -58,7 +61,9 @@ VUE_APP_I18N_FALLBACK_LOCALE=en
 ### Dockerfile Structure
 
 **Multi-stage build for optimization:**
+
 - **Stage 1 (Builder)**: Node.js 18 Alpine
+
   - Installs dependencies
   - Builds the Vue application
   - Final output in `/app/dist`
@@ -94,11 +99,13 @@ The application will be available at `http://localhost:5000`
 ## Manual Docker Commands
 
 Build the image:
+
 ```bash
 docker build -t wlwl-foundation:latest .
 ```
 
 Run the container:
+
 ```bash
 docker run -d -p 5000:5000 \
   -e NODE_ENV=production \
@@ -108,6 +115,7 @@ docker run -d -p 5000:5000 \
 ```
 
 Check container status:
+
 ```bash
 docker ps
 docker logs wlwl-foundation
@@ -116,16 +124,19 @@ docker logs wlwl-foundation
 ## Troubleshooting
 
 ### Build Errors
+
 - Check that `package.json` dependencies are installed
 - Verify Node.js version compatibility (requires Node 14+)
 - Check `.dockerignore` for excluded files
 
 ### Runtime Errors
+
 - Check environment variables are set
 - Review application logs: `docker logs wlwl-foundation`
 - Verify port 5000 is available
 
 ### Performance Issues
+
 - Monitor memory usage: `docker stats wlwl-foundation`
 - Check disk space for image storage
 - Review build logs for optimization opportunities
@@ -137,6 +148,7 @@ Any push to the main branch will trigger a new build and deployment in Dokploy a
 ## Rollback
 
 To rollback to a previous version in Dokploy:
+
 1. Go to deployment history
 2. Select the previous build
 3. Click "Redeploy"
