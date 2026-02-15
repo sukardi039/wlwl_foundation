@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wlwl-foundation
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - VUE_APP_I18N_LOCALE=en
+      - VUE_APP_I18N_FALLBACK_LOCALE=en
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:5000', (res) => {if (res.statusCode !== 200) throw new Error(res.statusCode)})"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
