@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from "react";
 
 const AppContext = createContext();
 
 export const useAppContext = () => {
   const context = useContext(AppContext);
   if (!context) {
-    throw new Error('useAppContext must be used within an AppProvider');
+    throw new Error("useAppContext must be used within an AppProvider");
   }
   return context;
 };
@@ -17,7 +17,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [paramdata, setParamdata] = useState({
-    params_ref: { params: { fileURL: '' } },
+    params_ref: { params: { fileURL: "" } },
     staff_det: { staff: {} },
     action_det: { action: [], subAction: {} },
     action_lst: { subAction: {} },

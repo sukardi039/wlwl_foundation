@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useTranslation } from 'react-i18next';
+import React, { useState, useEffect, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Container,
   Dialog,
@@ -9,25 +9,25 @@ import {
   Button,
   Typography,
   Box,
-} from '@mui/material';
-import { useAppContext } from '../../context/AppContext';
+} from "@mui/material";
+import { useAppContext } from "../../context/AppContext";
 
 // Import child components (to be created)
-import DrillMessage from './DrillMessage';
-import DrillStaffMessage from './DrillStaffMessage';
-import DrillProfile from './DrillProfile';
-import DrillSubAction from './DrillSubAction';
-import DrillActionMenu from './DrillActionMenu';
-import DrillRecruit from './DrillRecruit';
-import DrillStyle from './DrillStyle';
-import DrillStyleConfirm from './DrillStyleConfirm';
-import DrillStaff from './DrillStaff';
-import DrillOrderStat from './DrillOrderStat';
-import DrillOrderDone from './DrillOrderDone';
-import DrillHeader from './DrillHeader';
-import DrillActionConfirm from './DrillActionConfirm';
-import StaffCard from './StaffCard';
-import ChatBox from '../Chat/ChatBox';
+import DrillMessage from "./DrillMessage";
+import DrillStaffMessage from "./DrillStaffMessage";
+import DrillProfile from "./DrillProfile";
+import DrillSubAction from "./DrillSubAction";
+import DrillActionMenu from "./DrillActionMenu";
+import DrillRecruit from "./DrillRecruit";
+import DrillStyle from "./DrillStyle";
+import DrillStyleConfirm from "./DrillStyleConfirm";
+import DrillStaff from "./DrillStaff";
+import DrillOrderStat from "./DrillOrderStat";
+import DrillOrderDone from "./DrillOrderDone";
+import DrillHeader from "./DrillHeader";
+import DrillActionConfirm from "./DrillActionConfirm";
+import StaffCard from "./StaffCard";
+import ChatBox from "../Chat/ChatBox";
 
 const DrillPlatform = ({
   data,
@@ -51,18 +51,18 @@ const DrillPlatform = ({
   const [myMessage, setMyMessage] = useState([]);
   const [msgCount, setMsgCount] = useState(0);
   const [currentMessage, setCurrentMessage] = useState(0);
-  const [action, setAction] = useState('');
-  const [actionExp, setActionExp] = useState('');
-  const [task, setTask] = useState('');
-  const [taskExp, setTaskExp] = useState('');
-  const [markBox, setMarkBox] = useState('');
-  const [actionOn, setActionOn] = useState('');
+  const [action, setAction] = useState("");
+  const [actionExp, setActionExp] = useState("");
+  const [task, setTask] = useState("");
+  const [taskExp, setTaskExp] = useState("");
+  const [markBox, setMarkBox] = useState("");
+  const [actionOn, setActionOn] = useState("");
   const [recruitList, setRecruitList] = useState([]);
-  const [selectedRecruit, setSelectedRecruit] = useState('');
-  const [selectedRecruitExp, setSelectedRecruitExp] = useState('');
-  const [imsg, setImsg] = useState({ from: '', text: '', act: '' });
+  const [selectedRecruit, setSelectedRecruit] = useState("");
+  const [selectedRecruitExp, setSelectedRecruitExp] = useState("");
+  const [imsg, setImsg] = useState({ from: "", text: "", act: "" });
   const [showProfile, setShowProfile] = useState(false);
-  const [historyStep, setHistoryStep] = useState('');
+  const [historyStep, setHistoryStep] = useState("");
   const [applyAll, setApplyAll] = useState(false);
   const [subAction, setSubAction] = useState([]);
   const [showSubAction, setShowSubAction] = useState(false);
@@ -70,7 +70,7 @@ const DrillPlatform = ({
   const [blocking, setBlocking] = useState(false);
   const [showOrderStat, setShowOrderStat] = useState(false);
   const [showOrderDone, setShowOrderDone] = useState(false);
-  const [orderTask, setOrderTask] = useState('');
+  const [orderTask, setOrderTask] = useState("");
   const [currentMember, setCurrentMember] = useState({});
   const [ordersWait, setOrdersWait] = useState([]);
   const [ordersProcess, setOrdersProcess] = useState([]);
@@ -82,7 +82,7 @@ const DrillPlatform = ({
   const [absolute, setAbsolute] = useState(true);
   const [recruiting, setRecruiting] = useState(false);
   const [styling, setStyling] = useState(false);
-  const [currentStyle, setCurrentStyle] = useState('');
+  const [currentStyle, setCurrentStyle] = useState("");
   const [showingStaff, setShowingStaff] = useState(false);
   const [clicked1to1, setClicked1to1] = useState(0);
   const [oldStyle, setOldStyle] = useState(false);
@@ -93,11 +93,11 @@ const DrillPlatform = ({
   const [showStatus, setShowStatus] = useState(false);
   const [showStaffOnly, setShowStaffOnly] = useState(false);
   const [confirmAction, setConfirmAction] = useState(false);
-  const [actionInfo, setActionInfo] = useState('');
+  const [actionInfo, setActionInfo] = useState("");
 
   // Watch eTime (equivalent to Vue watch)
   useEffect(() => {
-    if (eTime === '0:01') {
+    if (eTime === "0:01") {
       setShowingStaff(false);
       setConfirmStyle(false);
       setConfirmAction(false);
@@ -115,7 +115,7 @@ const DrillPlatform = ({
   }, []);
 
   const cardColor = useCallback((ev) => {
-    return ev > 0 ? '#f5f5f5' : '';
+    return ev > 0 ? "#f5f5f5" : "";
   }, []);
 
   const getPhoto = useCallback(
@@ -126,47 +126,47 @@ const DrillPlatform = ({
           paramdata.staff_det.staff[staffId].staffPhoto
         );
       }
-      return paramdata.params_ref.params.fileURL + 'default.png';
+      return paramdata.params_ref.params.fileURL + "default.png";
     },
-    [paramdata]
+    [paramdata],
   );
 
   const redOrGreen = useCallback((v) => {
-    let c = 'transparent';
+    let c = "transparent";
     if (v < 0) {
-      c = '#ffcdd2';
+      c = "#ffcdd2";
     }
     if (v > 0) {
-      c = '#c8e6c9';
+      c = "#c8e6c9";
     }
     return c;
   }, []);
 
   const flashColor = useCallback((v) => {
-    let c = 'transparent';
+    let c = "transparent";
     if (v < 0) {
-      c = 'flash-sub';
+      c = "flash-sub";
     }
     if (v >= 0) {
-      c = 'flash-add';
+      c = "flash-add";
     }
     return c;
   }, []);
 
   const msgColor = useCallback((v) => {
-    return 'color: ' + (v > 0 ? 'lightgrey' : 'red');
+    return "color: " + (v > 0 ? "lightgrey" : "red");
   }, []);
 
   const valueColor = useCallback((v) => {
-    let c = '';
+    let c = "";
     if (v > 75) {
-      c = 'value-hh';
+      c = "value-hh";
     } else if (v > 50) {
-      c = 'value-mh';
+      c = "value-mh";
     } else if (v > 25) {
-      c = 'value-ml';
+      c = "value-ml";
     } else {
-      c = 'value-ll';
+      c = "value-ll";
     }
     return c;
   }, []);
@@ -186,7 +186,7 @@ const DrillPlatform = ({
       });
       setMsgCount((prev) => prev + 1);
     },
-    [msgCount]
+    [msgCount],
   );
 
   const i18Msg = useCallback(
@@ -203,7 +203,7 @@ const DrillPlatform = ({
       }
       return tx;
     },
-    [t]
+    [t],
   );
 
   const nextMessage = useCallback(() => {
@@ -221,40 +221,40 @@ const DrillPlatform = ({
       setStaffMsg(false);
       clearMessage();
       switch (ev) {
-        case 'introduced':
+        case "introduced":
           if (allIntroduced()) {
             buildMessage(
-              t('DrillPlatform.yourBoss'),
-              t('DrillPlatform.allIntroduced'),
-              'end_introduction',
-              -3
+              t("DrillPlatform.yourBoss"),
+              t("DrillPlatform.allIntroduced"),
+              "end_introduction",
+              -3,
             );
             setBlocking(true);
             setCurrentMessage(1);
           }
           break;
-        case 'end_introduction':
+        case "end_introduction":
           setBlocking(false);
           if (onSubmitIntro) onSubmitIntro(data);
           break;
-        case 'members_msg_read':
+        case "members_msg_read":
           setCurrentMember((prev) => ({ ...prev, readMsg: 1 }));
           break;
       }
     },
-    [data, onSubmitIntro, t]
+    [data, onSubmitIntro, t],
   );
 
   const introduce = useCallback(
     (m) => {
-      if (m.state === 'blink' || m.state === 'normal') {
+      if (m.state === "blink" || m.state === "normal") {
         setMyMessage([]);
         setMsgCount(0);
         buildMessage(
           m.staffExp,
           paramdata.staff_det.staff[m.staffName].staffSelfIntroduction,
-          'introduced',
-          m.staffName
+          "introduced",
+          m.staffName,
         );
         setCurrentMessage(1);
         setMsgCount(1);
@@ -263,14 +263,14 @@ const DrillPlatform = ({
         }
       }
     },
-    [paramdata, buildMessage]
+    [paramdata, buildMessage],
   );
 
   const allIntroduced = useCallback(() => {
     let done = true;
     let c = 0;
     for (c = 1; c <= data.content.control.maxMembers; c++) {
-      data.content.members[c].state = 'normal';
+      data.content.members[c].state = "normal";
       if (
         data.content.members[c].staffName &&
         !data.content.members[c].introduced
@@ -293,33 +293,33 @@ const DrillPlatform = ({
   const showStaff = useCallback(
     (ev) => {
       if (ev.staffName || (!ev.staffName && ev.actioned)) {
-        if (ev.state === 'blink' || ev.state === 'normal') {
+        if (ev.state === "blink" || ev.state === "normal") {
           setCurrentMember(ev);
           setShowingStaff(true);
-          if (!ev.introduced || data.action === 'INTRODUCTION') {
+          if (!ev.introduced || data.action === "INTRODUCTION") {
             introduce(ev);
           }
-          if (data.action === 'SELECT_STYLE') {
+          if (data.action === "SELECT_STYLE") {
             setCurrentStyle(ev.style);
           }
         }
       }
     },
-    [data, introduce]
+    [data, introduce],
   );
 
   const selectStyle = useCallback(
     (member) => {
       if (
-        data.action === 'SELECT_STYLE' ||
-        (data.action === 'INTRODUCTION' && member.introduced > 0)
+        data.action === "SELECT_STYLE" ||
+        (data.action === "INTRODUCTION" && member.introduced > 0)
       ) {
         setCurrentMember(member);
         setCurrentStyle(member.style);
         setStyling(true);
       }
     },
-    [data]
+    [data],
   );
 
   const clickedStyle = useCallback((ev) => {
@@ -335,12 +335,12 @@ const DrillPlatform = ({
       const newMember = { ...currentMember };
       newMember.style = ev;
       newMember.styleExp = paramdata.style_det.style.find(
-        (s) => s.name === ev
+        (s) => s.name === ev,
       ).displayKey;
       setCurrentMember(newMember);
       setStyling(false);
     },
-    [currentMember, paramdata]
+    [currentMember, paramdata],
   );
 
   const submitRecruit = useCallback(
@@ -348,7 +348,7 @@ const DrillPlatform = ({
       let v = 0;
       if (rr) {
         const foundAction = paramdata.action_det.action.find(
-          (a) => a.actionType === 'recruits'
+          (a) => a.actionType === "recruits",
         );
         if (foundAction) {
           setActionOn(foundAction);
@@ -364,8 +364,8 @@ const DrillPlatform = ({
           for (let c = 1; c <= data.content.control.maxMembers; c++) {
             if (data.content.members[c].staffNumber) {
               data.content.members[c].actioned = 0;
-              data.content.members[c].action = '';
-              data.content.members[c].actionExp = '';
+              data.content.members[c].action = "";
+              data.content.members[c].actionExp = "";
               data.content.members[c].offdays = 0;
               checkMaxActionMember();
               checkMinMember(data.content.members[c]);
@@ -385,7 +385,7 @@ const DrillPlatform = ({
       }
       return v;
     },
-    [currentMember, data, paramdata, taskExp]
+    [currentMember, data, paramdata, taskExp],
   );
 
   // Add more methods here (continuing from the Vue component)
@@ -398,27 +398,27 @@ const DrillPlatform = ({
         return;
       }
       setMsgCount(0);
-      if (data.action === 'INTRODUCTION') {
+      if (data.action === "INTRODUCTION") {
         introduce(ev);
         showStaff(ev);
       }
-      if (data.action === 'SELECT_STYLE') {
+      if (data.action === "SELECT_STYLE") {
         setStyling(true);
         showStaff(ev);
       }
-      if (data.action === 'MORE_ACTIONS') {
+      if (data.action === "MORE_ACTIONS") {
         if (
           ev.offdays < 1 &&
           ev.staffName &&
           actionExp &&
-          actionOn === 'members'
+          actionOn === "members"
         ) {
           memberClicked(ev);
         } else if (
           ev.offdays < 1 &&
           ev.staffName &&
           ev.away < 1 &&
-          actionOn !== 'recruits'
+          actionOn !== "recruits"
         ) {
           if (!action) {
             return;
@@ -433,14 +433,14 @@ const DrillPlatform = ({
           return;
         } else {
           const act = paramdata.action_det.action.find(
-            (a) => a.actionName === action
+            (a) => a.actionName === action,
           );
           if (act.vacancyOK > 0 && ev.staffName < 1) {
             memberClicked(ev);
           }
         }
         if (!ev.staffName) {
-          if (action !== 'recruit') {
+          if (action !== "recruit") {
             return;
           }
           if (ev.away < 1) {
@@ -450,7 +450,7 @@ const DrillPlatform = ({
             setTask(ev.task);
             setTaskExp(ev.taskExp);
           } else {
-            alertMessage(t('DrillPlatform.noApplicant'));
+            alertMessage(t("DrillPlatform.noApplicant"));
           }
         }
       }
@@ -465,16 +465,16 @@ const DrillPlatform = ({
       onEndFlash,
       onRefreshAction,
       t,
-    ]
+    ],
   );
 
   const alertMessage = useCallback(
     (ev) => {
-      buildMessage(t('DrillPlatform.notice'), ev, null, -1);
+      buildMessage(t("DrillPlatform.notice"), ev, null, -1);
       setBlocking(true);
       setCurrentMessage(1);
     },
-    [buildMessage, t]
+    [buildMessage, t],
   );
 
   const memberClicked = useCallback((ev) => {
@@ -492,34 +492,32 @@ const DrillPlatform = ({
 
   const actionMessage = useCallback(
     (ev) => {
-      const act = paramdata.action_det.action.find(
-        (a) => a.actionName === ev
-      );
+      const act = paramdata.action_det.action.find((a) => a.actionName === ev);
       if (!act) return;
 
       setActionInfo(act);
       let msg =
-        t(act.displayKey + '_e') +
-        ' ' +
-        t('DrillPlatform.duration') +
+        t(act.displayKey + "_e") +
+        " " +
+        t("DrillPlatform.duration") +
         act.duration +
-        ', ' +
-        t('DrillPlatform.members');
+        ", " +
+        t("DrillPlatform.members");
       if (act.applyAll > 0 && selectedRecruit < 1) {
-        msg = msg + t('DrillPlatform.allStaff');
+        msg = msg + t("DrillPlatform.allStaff");
       } else {
         msg = msg + act.minStaff;
         if (act.minStaff !== act.maxStaff) {
-          msg = msg + ' - ' + act.maxStaff;
+          msg = msg + " - " + act.maxStaff;
         }
       }
       setActMsg({
-        title: t(act.displayKey + '_title'),
+        title: t(act.displayKey + "_title"),
         head: t(paramdata.action_exp.action[act.actionName]),
         text: msg,
       });
     },
-    [paramdata, selectedRecruit, t]
+    [paramdata, selectedRecruit, t],
   );
 
   const profileProgress = useCallback((ev) => {
@@ -578,7 +576,7 @@ const DrillPlatform = ({
               <DrillHeader
                 data={data}
                 eTime={eTime}
-                show={showStatus || data.action !== 'INTRODUCTION'}
+                show={showStatus || data.action !== "INTRODUCTION"}
                 onProfileProgress={profileProgress}
                 onEndDrill={onEndDrill}
                 onDrillChat={drillChat}
@@ -592,21 +590,21 @@ const DrillPlatform = ({
                   {/* Action Menu Panel */}
                   <Grid item xs={2}>
                     <Box sx={{ p: 0, m: 0 }}>
-                      {data.action === 'MORE_ACTIONS' &&
+                      {data.action === "MORE_ACTIONS" &&
                         !flashAdded &&
                         !parentMsgCount && (
                           <Box>
                             {!actionExp && (
                               <Box>
                                 <Typography variant="h6" sx={{ p: 1, m: 1 }}>
-                                  {t('DrillPlatform.chooseAction')}
+                                  {t("DrillPlatform.chooseAction")}
                                 </Typography>
                                 <DrillActionMenu
                                   actions={actionFilter(
-                                    paramdata.action_det.action
+                                    paramdata.action_det.action,
                                   )}
                                   data={data}
-                                  head={t('DrillPlatform.1toMore')}
+                                  head={t("DrillPlatform.1toMore")}
                                   onActionSelected={(event) => {
                                     setActionExp(event);
                                     selectedAction(event);
@@ -617,7 +615,7 @@ const DrillPlatform = ({
                           </Box>
                         )}
                       {/* Action Message Display */}
-                      {actMsg.head && data.action !== 'TIME_OUT' && (
+                      {actMsg.head && data.action !== "TIME_OUT" && (
                         <Box>
                           <Typography variant="subtitle1">
                             {actMsg.head}
@@ -626,8 +624,8 @@ const DrillPlatform = ({
                         </Box>
                       )}
                       {/* Submit/Close Buttons */}
-                      <Box sx={{ textAlign: 'right', mt: 2 }}>
-                        {((data.action === 'MORE_ACTIONS' && actionExp) ||
+                      <Box sx={{ textAlign: "right", mt: 2 }}>
+                        {((data.action === "MORE_ACTIONS" && actionExp) ||
                           clicked1to1) &&
                           !confirmAction && (
                             <Button
@@ -635,7 +633,7 @@ const DrillPlatform = ({
                               color="primary"
                               onClick={() => setConfirmAction(true)}
                             >
-                              {t('DrillPlatform.submit')}
+                              {t("DrillPlatform.submit")}
                             </Button>
                           )}
                         {confirmAction && (
@@ -644,7 +642,7 @@ const DrillPlatform = ({
                             color="error"
                             onClick={closeAction}
                           >
-                            {t('DrillPlatform.close')}
+                            {t("DrillPlatform.close")}
                           </Button>
                         )}
                       </Box>
@@ -753,9 +751,7 @@ const DrillPlatform = ({
 
 // Helper functions that weren't fully implemented above
 function actionFilter(v) {
-  return v.filter(
-    (act) => act.actionName === act.parentAction && act.show > 0
-  );
+  return v.filter((act) => act.actionName === act.parentAction && act.show > 0);
 }
 
 function selectedAction(ev) {

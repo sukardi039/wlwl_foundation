@@ -190,20 +190,34 @@
                       </v-container>
                     </v-col>
                     <!-- Blue Message Banner Content -->
-                    <v-container v-if="actMsg.head && data.action != 'TIME_OUT'" class="pa-0 ma-0">
+                    <v-container
+                      v-if="actMsg.head && data.action != 'TIME_OUT'"
+                      class="pa-0 ma-0"
+                    >
                       <v-row dense>
                         <v-col
                           cols="12"
                           style="background-color: #2196F3; color: white;"
                           class="text-smaller pa-2"
                         >
-                          <h3 style="color: white; margin: 0;">{{ actMsg.head }}</h3>
+                          <h3 style="color: white; margin: 0;">
+                            {{ actMsg.head }}
+                          </h3>
                         </v-col>
-                        <v-col cols="12" class="text-small pa-2" style="background-color: #E3F2FD;">
+                        <v-col
+                          cols="12"
+                          class="text-small pa-2"
+                          style="background-color: #E3F2FD;"
+                        >
                           <h4 style="margin: 0;">{{ actMsg.text }}</h4>
                         </v-col>
                       </v-row>
-                      <v-row dense v-if="!applyAll" class="pa-2" style="background-color: #E3F2FD;">
+                      <v-row
+                        dense
+                        v-if="!applyAll"
+                        class="pa-2"
+                        style="background-color: #E3F2FD;"
+                      >
                         <v-col>
                           <v-row
                             dense
@@ -213,7 +227,10 @@
                             <v-col>
                               <v-row dense>
                                 <v-col
-                                  ><h4 v-if="mb.staffExp">{{ mb.staffExp }}</h4><h4 v-else>{{ $t('DrillPlatform.vacant') }}</h4></v-col
+                                  ><h4 v-if="mb.staffExp">{{ mb.staffExp }}</h4>
+                                  <h4 v-else>
+                                    {{ $t("DrillPlatform.vacant") }}
+                                  </h4></v-col
                                 >
                               </v-row>
                               <v-row dense>
@@ -226,14 +243,23 @@
                           </v-row>
                         </v-col>
                       </v-row>
-                      <v-row dense v-else class="pa-2" style="background-color: #E3F2FD;">
+                      <v-row
+                        dense
+                        v-else
+                        class="pa-2"
+                        style="background-color: #E3F2FD;"
+                      >
                         <v-col
                           ><h4 v-if="selectedRecruit < 1">
                             {{ $t("DrillPlatform.allStaff") }}
                           </h4></v-col
                         >
                       </v-row>
-                      <v-row dense class="pa-2" style="background-color: #E3F2FD;">
+                      <v-row
+                        dense
+                        class="pa-2"
+                        style="background-color: #E3F2FD;"
+                      >
                         <v-col>
                           <h4>{{ selectedRecruitExp }}</h4>
                         </v-col>
@@ -526,13 +552,13 @@ export default {
     }),
   },
   watch: {
-    eTime: function(val, oldVal){
-      if (val == '0:01'){
+    eTime: function(val, oldVal) {
+      if (val == "0:01") {
         this.showingStaff = false;
         this.confirmStyle = false;
         this.confirmAction = false;
       }
-    }
+    },
   },
   methods: {
     cardHeight(v) {
@@ -628,7 +654,7 @@ export default {
               this.$t("DrillPlatform.yourBoss"),
               this.$t("DrillPlatform.allIntroduced"),
               "end_introduction",
-              -3
+              -3,
             );
             this.blocking = true;
             this.currentMessage = 1;
@@ -651,7 +677,7 @@ export default {
           m.staffExp,
           this.paramdata.staff_det.staff[m.staffName].staffSelfIntroduction,
           "introduced",
-          m.staffName
+          m.staffName,
         );
         this.currentMessage = 1;
         this.msgCount = 1;
@@ -720,7 +746,7 @@ export default {
     submitStyle(ev) {
       this.currentMember.style = ev;
       this.currentMember.styleExp = this.paramdata.style_det.style.find(
-        (s) => s.name == ev
+        (s) => s.name == ev,
       ).displayKey;
       this.styling = false;
     },
@@ -728,7 +754,7 @@ export default {
       let v = 0;
       if (rr) {
         this.actionOn = this.paramdata.action_det.action.find(
-          (a) => a.actionType == "recruits"
+          (a) => a.actionType == "recruits",
         );
         if (this.actionOn) {
           this.applyAll = this.actionOn.applyAll;
@@ -768,7 +794,7 @@ export default {
     },
     submitAction(ev) {
       const ar = this.paramdata.action_det.action.find(
-        (a) => a.displayKey === this.actionExp
+        (a) => a.displayKey === this.actionExp,
       );
       this.confirmAction = false;
       let s = 0;
@@ -778,13 +804,13 @@ export default {
         s = this.selectedMembers(
           this.data.content.members,
           ar,
-          this.data.content.control.maxMembers
+          this.data.content.control.maxMembers,
         );
       } else {
         s = this.selectedRecruits(
           this.data.content.recruits,
           ar,
-          this.data.content.control.maxRecruits
+          this.data.content.control.maxRecruits,
         );
       }
       //      this.task = this.paramdata.task_ref.task[this.taskExp];
@@ -815,7 +841,7 @@ export default {
       let c = 1;
       let v = 0;
       for (c = 1; c <= x; c++) {
-        if ((m[c].staffName) ||(!m[c].staffName && ar.vacancyOK)){
+        if (m[c].staffName || (!m[c].staffName && ar.vacancyOK)) {
           if (m[c].actioned || ar.applyAll > 0) {
             v++;
             if (!m[c].action) {
@@ -836,7 +862,7 @@ export default {
       let v = 0;
       if (this.selectedRecruitExp) {
         let rr = this.data.content.recruits.find(
-          (r) => r.staffExp == this.selectedRecruitExp
+          (r) => r.staffExp == this.selectedRecruitExp,
         );
         this.selectedRecruit = rr.staffName;
         rr.actioned = 1;
@@ -851,7 +877,7 @@ export default {
     selectedAction(ev) {
       this.action = this.paramdata.base_ref.actions[ev];
       let act = this.paramdata.action_det.action.find(
-        (a) => a.actionName == this.action
+        (a) => a.actionName == this.action,
       );
       if (
         this.data.content.used.actions[act.actionName] &&
@@ -887,7 +913,7 @@ export default {
       // if action for the whole team
       this.applyAll =
         this.paramdata.action_det.action.find(
-          (a) => a.actionName == this.action
+          (a) => a.actionName == this.action,
         ).applyAll > 0
           ? true
           : false;
@@ -929,7 +955,7 @@ export default {
         }
       }
       this.actionOn = this.paramdata.action_det.action.find(
-        (a) => a.actionName == this.action
+        (a) => a.actionName == this.action,
       ).actionType;
       if (this.actionOn == "recruits") {
         this.recruitList = [];
@@ -957,13 +983,13 @@ export default {
       }
       if (act.focusedStaff > 0) {
         this.memberCardClicked(
-          this.data.content.members[this.whereStaff(act.focusedStaff)]
+          this.data.content.members[this.whereStaff(act.focusedStaff)],
         );
       }
     },
     actionMessage(ev) {
       let act = this.paramdata.action_det.action.find(
-        (a) => a.actionName == ev
+        (a) => a.actionName == ev,
       );
       this.actionInfo = act;
       let msg =
@@ -983,10 +1009,10 @@ export default {
       }
       this.actMsg.title = this.$t(act.displayKey + "_title");
       this.actMsg.head = this.$t(
-        this.paramdata.action_exp.action[act.actionName]
+        this.paramdata.action_exp.action[act.actionName],
       );
       this.actMsg.text = msg;
-      console.log(this.actMsg)
+      console.log(this.actMsg);
       // this.myMessage = []
       // this.msgCount = 0
       // this.currentMessage = 0
@@ -1029,7 +1055,7 @@ export default {
         // remove own task for evaluation action
         this.subAction = this.checkEvaluateSubAction(
           this.subAction,
-          this.currentMember
+          this.currentMember,
         );
       }
     },
@@ -1045,14 +1071,15 @@ export default {
     },
     checkMinMember(ev) {
       let ac = this.paramdata.action_det.action.find(
-        (a) => a.actionName == this.action
+        (a) => a.actionName == this.action,
       );
       let v = 0;
       for (let c = 1; c <= this.data.content.control.maxMembers; c++) {
         if (
           this.data.content.members[c]["task"] == ev.task &&
           !this.data.content.members[c]["actioned"] &&
-          (this.data.content.members[c].away == 0 || (this.data.content.members[c].staffName < 1 && ac.vacancyOK > 0))
+          (this.data.content.members[c].away == 0 ||
+            (this.data.content.members[c].staffName < 1 && ac.vacancyOK > 0))
         ) {
           v++;
         }
@@ -1077,7 +1104,7 @@ export default {
     },
     checkMaxActionMember() {
       let ac = this.paramdata.action_det.action.find(
-        (a) => a.actionName == this.action
+        (a) => a.actionName == this.action,
       );
       let v = 0;
       for (let c = 1; c <= this.data.content.control.maxMembers; c++) {
@@ -1202,7 +1229,7 @@ export default {
           m.message[c],
           "members_msg_read",
 
-          m.staffName
+          m.staffName,
         );
       }
       this.currentMessage = 1;
@@ -1315,7 +1342,7 @@ export default {
           return;
         } else {
           let act = this.paramdata.action_det.action.find(
-            (a) => a.actionName == this.action
+            (a) => a.actionName == this.action,
           );
           if (act.vacancyOK > 0 && ev.staffName < 1) {
             this.memberClicked(ev);
@@ -1349,7 +1376,7 @@ export default {
           this.$t(ev),
           this.paramdata.style_des.style[ev],
           null,
-          -1
+          -1,
         );
         this.blocking = false;
         this.currentMessage = 1;
@@ -1369,7 +1396,7 @@ export default {
     },
     avgValue(m) {
       return Math.round(
-        (m.skillsValue * 1 + m.moraleValue * 1 + m.efficiencyValue * 1) / 3
+        (m.skillsValue * 1 + m.moraleValue * 1 + m.efficiencyValue * 1) / 3,
       );
     },
     memberActioned() {
