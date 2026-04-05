@@ -31,6 +31,7 @@ module.exports = {
   },
 
   transpileDependencies: [
-    'vuetify'
+    'vuetify',
+    'fast-png'
   ]
 }
