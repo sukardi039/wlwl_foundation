@@ -3,11 +3,14 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Avoid npm 10.x instability seen in CI logs ("Exit handler never called").
+RUN npm install -g npm@9.9.4
+
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --legacy-peer-deps --include=dev
+RUN npm ci --legacy-peer-deps --include=dev && test -x node_modules/.bin/vue-cli-service
 
 # Copy source code
 COPY . .
