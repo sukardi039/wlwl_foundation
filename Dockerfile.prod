@@ -6,11 +6,16 @@ WORKDIR /app
 # Avoid npm 10.x instability seen in CI logs ("Exit handler never called").
 RUN npm install -g npm@9.9.4
 
+# Force public npm registry in CI environments.
+RUN npm config set registry https://registry.npmjs.org/
+
 # Copy package files
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --legacy-peer-deps --include=dev && test -x node_modules/.bin/vue-cli-service
+RUN rm -f package-lock.json \
+    && npm install --legacy-peer-deps --include=dev \
+    && test -x node_modules/.bin/vue-cli-service
 
 # Copy source code
 COPY . .
