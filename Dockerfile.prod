@@ -13,8 +13,12 @@ RUN npm config set registry https://registry.npmjs.org/
 COPY package*.json ./
 
 # Install dependencies
-RUN rm -f package-lock.json \
-    && npm install --legacy-peer-deps --include=dev \
+RUN if [ -f package-lock.json ]; then \
+    sed -i 's#https://registry\\.nlark\\.com/#https://registry.npmjs.org/#g' package-lock.json; \
+    sed -i 's#https://registry\\.npm\\.taobao\\.org/#https://registry.npmjs.org/#g' package-lock.json; \
+    sed -i 's#https://r\\.cnpmjs\\.org/#https://registry.npmjs.org/#g' package-lock.json; \
+    fi \
+    && npm ci --legacy-peer-deps --include=dev \
     && test -x node_modules/.bin/vue-cli-service
 
 # Copy source code
