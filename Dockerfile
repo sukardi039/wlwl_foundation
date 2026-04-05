@@ -45,4 +45,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD node -e "const p=process.env.PORT||3000; require('http').get('http://localhost:'+p, (res) => {if (res.statusCode < 200 || res.statusCode >= 400) throw new Error(res.statusCode)})"
 
 # Start the application
-CMD ["sh", "-c", "serve -s dist -l tcp://0.0.0.0:${PORT:-3000}"]
+CMD ["sh", "-c", "serve -s dist -l ${PORT:-3000}"]
