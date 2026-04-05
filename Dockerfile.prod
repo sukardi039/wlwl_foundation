@@ -26,17 +26,20 @@ RUN npm run build
 # Production stage - using Nginx for better performance
 FROM nginx:alpine
 
+# Default backend origin; override in Dokploy Environment.
+ENV BACKEND_ORIGIN=http://backend:80
+
 # Remove default nginx config
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy custom nginx config
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx template (rendered by nginx entrypoint with env vars)
+COPY nginx.conf /etc/nginx/templates/default.conf.template
 
 # Copy built app from builder stage
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Expose port
-EXPOSE 80
+# Expose ports (80 preferred; 3000 for platform compatibility)
+EXPOSE 80 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
