@@ -19,6 +19,7 @@ RUN if [ -f package-lock.json ]; then \
     sed -i 's#https://registry.npmmirror.com/#https://registry.npmjs.org/#g' package-lock.json; \
     sed -i 's#https://r.cnpmjs.org/#https://registry.npmjs.org/#g' package-lock.json; \
     sed -i 's#/download/#/-/#g' package-lock.json; \
+    sed -i 's#\.tgz[^"]*#\.tgz#g' package-lock.json; \
     fi \
     && npm ci --legacy-peer-deps --include=dev \
     && test -x node_modules/.bin/vue-cli-service
