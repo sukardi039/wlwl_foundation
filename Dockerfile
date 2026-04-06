@@ -46,5 +46,5 @@ EXPOSE 80 3000
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD wget --quiet --tries=1 --spider http://localhost:80/ || exit 1
 
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start nginx (require BACKEND_ORIGIN or VUE_APP_BACKEND_URL to be set)
+ENTRYPOINT ["/bin/sh", "-c", "if [ -z \"${BACKEND_ORIGIN}${VUE_APP_BACKEND_URL}\" ]; then echo 'ERROR: BACKEND_ORIGIN or VUE_APP_BACKEND_URL must be set' >&2; exit 1; fi; exec nginx -g 'daemon off;'"]
