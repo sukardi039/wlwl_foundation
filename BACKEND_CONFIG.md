@@ -99,6 +99,8 @@ const res = await fetch(API_CONFIG.getImageUploadendpoint('images/upload.php'), 
 - `VUE_APP_BACKEND_URL` - Main backend API base URL
 - `VUE_APP_IMAGE_UPLOAD_URL` - Image upload service URL
 
+For the Docker Nginx container, `VUE_APP_BACKEND_URL` is also reused as the runtime proxy target when `BACKEND_ORIGIN` is not set. This lets Dokploy use the same backend URL from your environment without requiring a separate `backend` hostname.
+
 **Note:** All environment variables in Vue CLI must be prefixed with `VUE_APP_` to be exposed to the client.
 
 ## Building for Different Environments

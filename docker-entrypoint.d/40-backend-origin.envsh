@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ -z "${BACKEND_ORIGIN:-}" ] && [ -n "${VUE_APP_BACKEND_URL:-}" ]; then
+    export BACKEND_ORIGIN="${VUE_APP_BACKEND_URL}"
+fi

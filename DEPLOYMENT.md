@@ -24,7 +24,7 @@ This guide explains how to deploy the WLWL Foundation application using Dokploy.
 
 - **Dockerfile**: `Dockerfile` (at project root)
 - **Build Context**: `/` (project root)
-- **Port**: `5000`
+- **Port**: `80`
 
 #### Environment Variables
 
@@ -34,7 +34,11 @@ Add the following environment variables:
 NODE_ENV=production
 VUE_APP_I18N_LOCALE=en
 VUE_APP_I18N_FALLBACK_LOCALE=en
+VUE_APP_BACKEND_URL=https://api.example.com
+VUE_APP_IMAGE_UPLOAD_URL=https://api.example.com
 ```
+
+`VUE_APP_BACKEND_URL` is used both by the Vue app and by the Nginx proxy inside the container. If `BACKEND_ORIGIN` is not set explicitly, the container now reuses `VUE_APP_BACKEND_URL` automatically.
 
 #### Domains
 
@@ -48,7 +52,7 @@ VUE_APP_I18N_FALLBACK_LOCALE=en
    - Clone the repository
    - Build the Docker image
    - Run the container
-   - Expose the application on port 5000
+  - Expose the application on port 80
 
 ### 4. Monitor Deployment
 
@@ -68,14 +72,13 @@ VUE_APP_I18N_FALLBACK_LOCALE=en
   - Builds the Vue application
   - Final output in `/app/dist`
 
-- **Stage 2 (Production)**: Node.js 18 Alpine + serve
+- **Stage 2 (Production)**: Nginx Alpine
   - Only contains built application
-  - Minimal image size (~200MB)
-  - Uses `serve` to run static files
+  - Uses Nginx to serve static files and proxy `/backend` and `/images`
 
 ### Port Mapping
 
-- **Internal Port**: 5000
+- **Internal Port**: 80
 - **External Port**: Configured in Dokploy
 
 ### Health Check
@@ -95,6 +98,7 @@ docker-compose up --build
 ```
 
 The application will be available at `http://localhost:5000`
+if you map port 5000, or `http://localhost` when using the production compose file as written.
 
 ## Manual Docker Commands
 
@@ -107,9 +111,10 @@ docker build -t wlwl-foundation:latest .
 Run the container:
 
 ```bash
-docker run -d -p 5000:5000 \
+docker run -d -p 80:80 \
   -e NODE_ENV=production \
   -e VUE_APP_I18N_LOCALE=en \
+  -e VUE_APP_BACKEND_URL=https://api.example.com \
   --name wlwl-foundation \
   wlwl-foundation:latest
 ```
@@ -132,8 +137,9 @@ docker logs wlwl-foundation
 ### Runtime Errors
 
 - Check environment variables are set
+- Ensure `VUE_APP_BACKEND_URL` resolves from inside the container network
 - Review application logs: `docker logs wlwl-foundation`
-- Verify port 5000 is available
+- Verify port 80 is available
 
 ### Performance Issues
 
