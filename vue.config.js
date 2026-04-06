@@ -16,13 +16,13 @@ module.exports = {
         pathRewrite: { '^/api': '/' },
       },
       '^/backend': {
-        target: 'http://127.0.0.1/wlwl',
+        target: process.env.VUE_APP_BACKEND_URL || 'http://127.0.0.1/wlwl',
         changeOrigin: true,
         logLevel: 'debug',
         //        pathRewrite : { '^/backend/signin/' : '/backend/signin/index.php'}
       },
       '^/images': {
-        target: 'http://127.0.0.1/wlwl',
+        target: process.env.VUE_APP_IMAGE_UPLOAD_URL || 'http://127.0.0.1/wlwl',
         changeOrigin: true,
         logLevel: 'debug',
         //        pathRewrite : { '^/backend/signin/' : '/backend/signin/index.php'}
