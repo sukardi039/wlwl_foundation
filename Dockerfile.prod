@@ -31,6 +31,7 @@ RUN rm /etc/nginx/conf.d/default.conf
 
 # Reuse VUE_APP_BACKEND_URL at runtime when BACKEND_ORIGIN is not set.
 COPY docker-entrypoint.d/40-backend-origin.envsh /docker-entrypoint.d/40-backend-origin.envsh
+RUN chmod +x /docker-entrypoint.d/40-backend-origin.envsh
 
 # Copy nginx template (rendered by nginx entrypoint with env vars)
 COPY nginx.conf /etc/nginx/templates/default.conf.template
