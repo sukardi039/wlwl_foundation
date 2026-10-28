@@ -40,7 +40,7 @@ COPY nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 # Expose ports (80 preferred; 3000 for platform compatibility)
-EXPOSE 80 3000
+EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
