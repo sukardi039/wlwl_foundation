@@ -28,39 +28,35 @@
           ><v-col><br /></v-col
         ></v-row>
 
-        <v-layout row wrap align-center>
-          <v-flex>
-            <v-row>
-              <v-col cols="3"></v-col>
-              <v-col cols="6">
-                <SignIn
-                  v-if="needSignIn"
-                  :signininfo="signininfo"
-                  :register="register"
-                  @sign-in="SigningIn($event)"
-                  @register-demo="RegisterDemo($event)"
-                  @Help="subject = 'signin'"
-                />
-              </v-col>
-              <v-col cols="3"></v-col>
-            </v-row>
-            <v-row class="text-center" v-if="false">
-              <v-col
-                ><span
-                  style="color: #ddbd82"
-                  @click.stop="register = true"
-                  v-if="!register"
-                  >{{ $t("registerDemo") }}</span
-                ><span
-                  style="color: #ddbd82"
-                  @click.stop="register = false"
-                  v-if="register"
-                  >{{ $t("dontRegister") }}</span
-                ></v-col
-              >
-            </v-row>
-          </v-flex>
-        </v-layout>
+        <v-row>
+          <v-col cols="3"></v-col>
+          <v-col cols="6">
+            <SignIn
+              v-if="needSignIn"
+              :signininfo="signininfo"
+              :register="register"
+              @sign-in="SigningIn($event)"
+              @register-demo="RegisterDemo($event)"
+              @Help="subject = 'signin'"
+            />
+          </v-col>
+          <v-col cols="3"></v-col>
+        </v-row>
+        <v-row class="text-center" v-if="false">
+          <v-col
+            ><span
+              style="color: #ddbd82"
+              @click.stop="register = true"
+              v-if="!register"
+              >{{ $t("registerDemo") }}</span
+            ><span
+              style="color: #ddbd82"
+              @click.stop="register = false"
+              v-if="register"
+              >{{ $t("dontRegister") }}</span
+            ></v-col
+          >
+        </v-row>
         <v-row class="footer pa-1">
           <v-col class="text-center" style="font-size: 0.8em; color: white;">{{ida.company}} {{ida.reg}}<a v-bind:href="ida.url">{{ida.ida}}</a> <img :src="ida.polreg" width="10" /> <a v-bind:href="ida.polurl">{{ida.pol}}</a></v-col>
         </v-row>
