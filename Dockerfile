@@ -2,6 +2,8 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+ENV NODE_OPTIONS=--openssl-legacy-provider
+
 RUN npm install -g npm@9.9.4 \
     && npm config set registry https://registry.npmjs.org/
 
