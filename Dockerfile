@@ -2,8 +2,12 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+RUN npm install -g npm@9.9.4 \
+    && npm config set registry https://registry.npmjs.org/
+
 COPY package*.json ./
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps --include=dev \
+    && test -x node_modules/.bin/vue-cli-service
 
 COPY . .
 RUN npm run build
