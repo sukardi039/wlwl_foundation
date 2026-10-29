@@ -178,7 +178,8 @@ export default {
   },
   methods: {
     runUnlocked(s) {
-      switch (s) {
+      // Backend may send seq as a string or a number depending on the PHP/DB driver.
+      switch (String(s)) {
         case "1":
           return this.user.activeOne;
         case "2":
