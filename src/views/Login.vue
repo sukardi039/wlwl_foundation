@@ -12,7 +12,10 @@
               <v-col cols="4"
                 ><span>{{ $t("portalname") }}</span></v-col
               >
-              <v-divider vertical thickness="3" color="#ddbd82"> </v-divider>
+              <!-- Vuetify 2 has no `thickness` on v-divider (that is a v3 prop).
+                   .v-divider--vertical uses `border-width: 0 thin 0 0`, so the
+                   3px rule goes on the right border instead. -->
+              <v-divider vertical style="border-right-width: 3px" color="#ddbd82"> </v-divider>
               <v-col cols="8" class="login-title text-start">
                 <p style="line-height: 1.4">
                   {{ $t("homemessage1") }}<br v-if="$t('homemessage2')" />
