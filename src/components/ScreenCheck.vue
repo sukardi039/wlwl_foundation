@@ -8,7 +8,7 @@
         <v-card-title class="text-center">
         </v-card-title>
         <v-card-text>
-            <h2 text-white>{{$t('ScreenCheck.notRight')}}</h2>
+            <h2 class="white--text">{{$t('ScreenCheck.notRight')}}</h2>
             <br>
             <br>
             <h4>{{$t('ScreenCheck.minimum')}} {{w}}X{{h}}</h4>
@@ -17,7 +17,7 @@
             <br>
             <br>
             <v-btn
-            round
+            rounded
             @click.stop="$emit('checked')">{{$t('ScreenCheck.useIt')}}</v-btn>
         </v-card-text>
     </v-card>
