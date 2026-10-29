@@ -1,4 +1,7 @@
 module.exports = {
+  // Source maps and parallel workers more than double build memory, which stalls small Dokploy servers.
+  productionSourceMap: false,
+  parallel: false,
   pluginOptions: {
     i18n: {
       locale: 'cn',

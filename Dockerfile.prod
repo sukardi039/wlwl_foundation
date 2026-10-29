@@ -3,6 +3,9 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Cap the build heap so webpack GCs instead of exhausting a small server's RAM.
+ENV NODE_OPTIONS=--max-old-space-size=1024
+
 # Avoid npm 10.x instability seen in CI logs ("Exit handler never called").
 RUN npm install -g npm@9.9.4
 
