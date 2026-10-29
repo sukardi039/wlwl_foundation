@@ -13,8 +13,14 @@
       </v-list-item>
 
       <v-divider></v-divider>
+      <Authentication
+        v-if="!authenticated"
+        :authenticated.sync="authenticated"
+        :user-id="signedinuser.userId"
+        @signed-off="signedOff()"
+      />
       <Navigation
-        v-if="drilldata.testInProgress !== 1 || true"
+        v-if="(drilldata.testInProgress !== 1 || true)&&authenticated"
         @signed-off="signedOff()"
         @Menu-Clicked="changeHeading($event)"
       />
@@ -68,6 +74,7 @@
 import { mapState } from "vuex";
 
 import LanguageSwitcher from "./components/LanguageSwitcher";
+import Authentication from "./components/Login/authentication";
 import Navigation from "./components/Navigation";
 import SalesFunal from "./components/SalesFunal";
 import Login from "./views/Login";
@@ -82,9 +89,11 @@ export default {
     app_bar_font_color: "#ddbd82",
     app_bar_icon_color: "#ddbd82",
     heading: "portalname",
+    authenticated: false,
   }),
   components: {
     LanguageSwitcher,
+    Authentication,
     Login,
     Navigation,
     SalesFunal,
@@ -110,12 +119,15 @@ export default {
       document.cookie = "session=" + ev.sessionid;
       document.cookie = "language = " + this.$i18n.locale;
       this.signedin = true;
-      this.drawer = false;
+      if (ev.level==0) {
+        this.authenticated = true;
+      }
+      this.drawer = !this.authenticated;
       // console.log(document, document.getElementById('entryPage'))
       // document.getElementById("entryPage").click();
     },
     async signedOff() {
-      const res = await fetch("backend/staffsignin/", {
+      const res = await fetch("/backend/staffsignin/", {
         method: "DELETE",
         headers: {
           "content-type": "application/json",
@@ -128,6 +140,7 @@ export default {
       this.$store.commit("setSignedinuser", {});
       this.drawer = false;
       this.signedin = false;
+      this.authenticated = false;
       //      }
       this.changeHeading();
     },

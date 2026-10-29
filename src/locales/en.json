@@ -44,6 +44,13 @@
     "useIt": "Got it, continue using"
   },
   "login": {
+    "authenticate": "Submit",
+    "auth_title": "Verify your identity",
+    "auth_instructions": "Enter the OTP you received to complete sign-in.",
+    "auth_code": "One-time password",
+    "auth_invalid_otp": "The OTP was not accepted. {remainingAttempts} attempts remaining.",
+    "auth_attempts_exceeded": "The OTP was not accepted. Maximum attempts reached; signing out.",
+    "auth_service_unavailable": "Authentication service not available for this user",
     "username": "Username",
     "password": "Password",
     "signin": "Login",

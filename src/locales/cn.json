@@ -44,6 +44,13 @@
     "useIt": "知道了，继续用"
   },
   "login": {
+    "authenticate": "提交",
+    "auth_title": "身份验证",
+    "auth_instructions": "请输入您收到的一次性验证码以完成登录。",
+    "auth_code": "一次性验证码",
+    "auth_invalid_otp": "验证码不正确。还可尝试 {remainingAttempts} 次。",
+    "auth_attempts_exceeded": "验证码不正确，已达到尝试次数上限，正在退出登录。",
+    "auth_service_unavailable": "此用户的身份验证服务不可用",
     "username": "用户名",
     "password": "密码",
     "signin": "登录",
