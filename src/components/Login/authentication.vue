@@ -78,7 +78,7 @@ export default {
   methods: {
     async getAuthenticationKey() {
       try {
-        const response = await fetch("backend/staffsignin/?method=GETAUTH", {
+        const response = await fetch("/backend/staffsignin/?method=GETAUTH", {
           method: "POST",
           cache: "no-cache",
           headers: {
@@ -106,7 +106,7 @@ export default {
 
       this.checking = true;
       try {
-        const response = await fetch("backend/staffsignin/?method=CHKAUTH", {
+        const response = await fetch("/backend/staffsignin/?method=CHKAUTH", {
           method: "POST",
           cache: "no-cache",
           headers: {

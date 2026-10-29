@@ -127,7 +127,7 @@ export default {
       // document.getElementById("entryPage").click();
     },
     async signedOff() {
-      const res = await fetch("backend/staffsignin/", {
+      const res = await fetch("/backend/staffsignin/", {
         method: "DELETE",
         headers: {
           "content-type": "application/json",

@@ -154,7 +154,7 @@ export default {
     // },
     async SigningIn(ev) {
       if (this.signininfo.username && this.signininfo.password) {
-        const res = await fetch("backend/staffsignin/", {
+        const res = await fetch("/backend/staffsignin/", {
           method: "POST",
           cache: "no-cache",
           headers: {
@@ -180,7 +180,7 @@ export default {
     },
     async RegsiterDemo(ev) {
       if (this.signininfo.username && this.signininfo.password) {
-        const res = await fetch("backend/registerdemo/", {
+        const res = await fetch("/backend/registerdemo/", {
           method: "PUT",
           cache: "no-cache",
           headers: {
@@ -201,7 +201,7 @@ export default {
       }
     },
     async AutoSignIn(sessid) {
-      await fetch("backend/staffsignin/?" + sessid, {
+      await fetch("/backend/staffsignin/?" + sessid, {
         method: "GET",
         headers: {
           "content-type": "application/json",
@@ -244,7 +244,7 @@ export default {
 
     // }
     async getReg(){
-              const res = await fetch("backend/registration.json", {
+              const res = await fetch("/backend/registration.json", {
           method: "GET",
           cache: "no-cache",
           headers: {
