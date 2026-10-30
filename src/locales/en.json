@@ -32,6 +32,7 @@
   },
   "general": {
     "incomplete": "Please complete the data before proceeding",
+    "saveFailed": "Save failed. Please sign in again and retry, or contact the administrator",
     "fileTooBig": "Unable to upload large files, please reduce the file size or choose another file",
     "fileType": "Only JPEG or PNG images are supported, please choose another file",
     "uploadFailed": "Image upload failed",

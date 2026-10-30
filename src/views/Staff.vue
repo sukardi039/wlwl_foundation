@@ -104,9 +104,17 @@ export default {
               body: JSON.stringify(this.fetchbuffer),
           })
           if (res.status === 200){
-              const Data = await res.json()
-              return await Data;
+              // The backend can answer 200 with an empty body (e.g. invalid session or rejected save).
+              const text = await res.text()
+              if (!text) return null
+              try {
+                  return JSON.parse(text)
+              } catch (e) {
+                  console.error('Invalid JSON from ' + qryStr, e)
+                  return null
+              }
           }
+          return null
       },
       async xGetStaff() {
           this.BaseData = await this.GetInfo("", "", "POST", "/backend/staff/")
@@ -151,20 +159,40 @@ export default {
                 ev.staffPhoto = ev.staffPhoto?ev.staffPhoto:this.paramData.defaultImage
                 this.fetchbuffer.qdata = ev
                 const NewData = await this.GetInfo("", "", "PUT", "/backend/staff/")
+                const saved = (Array.isArray(NewData) && NewData[0]) ? NewData[0] : await this.findSavedStaff(ev)
+                if (!saved) {
+                    alert(this.$t("general.saveFailed"))
+                    return
+                }
                 if (this.AmendData === "A"){
                     if (this.BaseData){
-                        this.BaseData = [...this.BaseData, NewData[0]]
+                        this.BaseData = [...this.BaseData.filter((inf)=>inf.staffId !== saved.staffId), saved]
                     } else {
-                        this.BaseData = NewData
+                        this.BaseData = [saved]
                     }
                 }
                 if (this.AmendData ==="E") {
-                    this.BaseData = this.BaseData.map((inf)=>inf.staffId === ev.staffId ? NewData[0] : inf)
+                    this.BaseData = this.BaseData.map((inf)=>inf.staffId === ev.staffId ? saved : inf)
                 }
                 this.AmendData = ''
           } else {
                  alert(this.$t("general.incomplete"))             
           }
+      },
+      // When the save response has no record, reload the list and confirm the change was persisted.
+      async findSavedStaff(ev) {
+          const known = (this.BaseData || []).map((inf)=>String(inf.staffId))
+          this.fetchbuffer.qdata = {}
+          const Data = await this.GetInfo("", "", "POST", "/backend/basicinformation/")
+          const list = Data && Data.staff_rec && Data.staff_rec.staff
+          if (!Array.isArray(list)) return null
+          if (this.AmendData === "E") {
+              return list.find((inf)=>String(inf.staffId) === String(ev.staffId)
+                  && inf.staffName === ev.staffName
+                  && inf.staffPhoto === ev.staffPhoto) || null
+          }
+          return list.find((inf)=>!known.includes(String(inf.staffId))
+              && inf.staffName === ev.staffName) || null
       },
       async toEdit(ev) {
 //            console.log(this.GotParam)

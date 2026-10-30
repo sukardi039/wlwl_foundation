@@ -32,6 +32,7 @@
   },
   "general": {
     "incomplete": "请完善数据后继续操作",
+    "saveFailed": "保存失败，请重新登录后再试，或联系管理员",
     "fileTooBig": "无法上传大型文件，请缩小文件或选择另一文件",
     "fileType": "仅支持 JPEG 或 PNG 图片，请选择另一文件",
     "uploadFailed": "图片上传失败",
