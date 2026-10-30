@@ -233,8 +233,9 @@ export default {
     },
     async submitIntroduction(ev) {
       // console.log("submit", ev);
-      ev.content = JSON.stringify(ev.content);
-      this.fetchbuffer.qdata = ev;
+      // Send a copy so the live record keeps its object content while the request is pending;
+      // otherwise the header render and the countdown timer read fields off a JSON string.
+      this.fetchbuffer.qdata = { ...ev, content: JSON.stringify(ev.content) };
       this.drillRecord = await this.GetInfo(
         "ACTION",
         "",
@@ -266,8 +267,7 @@ export default {
     async submitEnvironment() {
       let ev = this.drillRecord;
       // console.log("submit", ev);
-      ev.content = JSON.stringify(ev.content);
-      this.fetchbuffer.qdata = ev;
+      this.fetchbuffer.qdata = { ...ev, content: JSON.stringify(ev.content) };
       this.drillRecord = await this.GetInfo(
         "ENVIRONMENT",
         "",
@@ -430,7 +430,7 @@ export default {
             let c = 0;
             while (c < stm.count) {
               //              console.log(stm.count, c)
-              if (stm.description && stm.description[c].length > 0) {
+              if (this.hasText(stm.description, c)) {
                 console.log(
                   this.baseParam.bossmessage_ref.msg[stm.description[c]]
                 );
@@ -455,7 +455,7 @@ export default {
             let c = 0;
             if (c < stm.count) {
               //              console.log(stm.count, c)
-              if (stm.description && stm.description[c].length > 0) {
+              if (this.hasText(stm.description, c)) {
                 this.buildMessage(
                   this.$t("DrillPlatform.notice"),
                   stm.staffExp[c] + " " + stm.description[c],
@@ -475,7 +475,7 @@ export default {
             let c = 0;
             while (c < stm.count) {
               //              console.log(stm.count, c)
-              if (stm.description && stm.description[c].length > 0) {
+              if (this.hasText(stm.description, c)) {
                 this.buildMessage(
                   this.$t("DrillPlatform.yourBoss"),
                   this.$t(
@@ -496,7 +496,7 @@ export default {
           let c = 0;
           if (c < evn.count) {
             //              console.log(evn.count, c, ev.content.day[ev.dayNumber]['event'])
-            if (evn.description && evn.description[c].length > 0) {
+            if (this.hasText(evn.description, c)) {
               this.buildMessage(
                 this.$t("DrillPlatform.environment"),
                 evn.staffExp[c] + this.$t(evn.description[c]),
@@ -533,6 +533,10 @@ export default {
         this.currentMessage = 1;
       }
       console.log(this.myMessage)
+    },
+    hasText(list, i) {
+      // Backend may send null/missing entries (or numbers) in message description lists.
+      return !!list && list[i] != null && String(list[i]).length > 0;
     },
     buildMessage(from, text, act, who) {
       if (!act) {
