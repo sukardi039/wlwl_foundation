@@ -1,7 +1,7 @@
 <template>
   <div text-center style="width:220px;">
     <v-img
-      :src="getPhoto(myStaff.staffName)"
+      :src="getPhoto(myStaff.staffName)" @error="onStaffPhotoError"
       width="220"
     ></v-img>
     <div style="height:4px;"></div>
@@ -14,8 +14,10 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 export default {
   name: "DrillstaffHead",
+  mixins: [staffPhotoMixin],
   props: {
     paramdata: [],
     myStaff: [],
@@ -26,10 +28,7 @@ export default {
         if (staffId == -1) {
           return this.paramdata.params_ref.params.fileURL + "allStaff.png";
         }
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

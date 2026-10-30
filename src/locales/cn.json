@@ -33,6 +33,9 @@
   "general": {
     "incomplete": "请完善数据后继续操作",
     "fileTooBig": "无法上传大型文件，请缩小文件或选择另一文件",
+    "fileType": "仅支持 JPEG 或 PNG 图片，请选择另一文件",
+    "uploadFailed": "图片上传失败",
+    "sessionExpired": "登录已过期，请重新登录",
     "day1": "第",
     "day2": "天",
     "day": "天"

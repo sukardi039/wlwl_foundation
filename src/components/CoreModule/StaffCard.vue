@@ -15,7 +15,7 @@
             <v-col>
               <v-container class="pa-0 ma-0">
                 <v-img
-                  :src="getPhoto(member.staffName)"
+                  :src="getPhoto(member.staffName)" @error="onStaffPhotoError"
                   style="z-index: 1; height:18vh"
                 ></v-img>
               </v-container>
@@ -276,9 +276,11 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import DrillStaffStatus from "./DrillStaffStatus";
 export default {
   name: "StaffCard",
+  mixins: [staffPhotoMixin],
   components: {
     DrillStaffStatus,
   },
@@ -310,10 +312,7 @@ export default {
     },
     getPhoto(staffId) {
       if (staffId) {
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

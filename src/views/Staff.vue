@@ -205,7 +205,7 @@ export default {
           this.GetFile = this.GetFile?false:true
       },
       uploadedFile(ev){
-          this.EditData.staffPhoto = ev.fileName
+          this.EditData.staffPhoto = ev.id
           this.toggleGetFile()
       },
     },

@@ -13,7 +13,7 @@
         </v-row>
         <v-row flat v-for="Data in BaseData" :key="Data.staffId" @click="$emit('Row-Clicked', Data)">
             <v-col cols="3">
-                <img :src="getImg(Data.staffPhoto)" width="100%"/>
+                <img :src="getImg(Data.staffPhoto)" @error="onStaffPhotoError(getImg(Data.staffPhoto))" alt="Staff photo" width="100%"/>
             </v-col>
             <v-col cols="8">
                 <v-row>
@@ -47,15 +47,18 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto"
+
 export default {
     name: 'StaffList',
+    mixins: [staffPhotoMixin],
     props: {
         BaseData: [],
         param:{},
     },
     methods:{
         getImg(img){
-            return this.param.fileURL.concat((img)?img:this.param.defaultImage)
+            return this.staffPhotoSrc(img, this.param)
         }
     }
 }

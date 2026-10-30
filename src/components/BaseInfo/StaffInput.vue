@@ -33,7 +33,7 @@
             <v-col>
                 <v-row>
                     <v-col cols="1"></v-col>
-                    <v-col><img :src="getImg(Data.staffPhoto)" width="90%"/></v-col>
+                    <v-col><img :src="getImg(Data.staffPhoto)" @error="onStaffPhotoError(getImg(Data.staffPhoto))" alt="Staff photo" width="90%"/></v-col>
                     <v-col cols="1"><span class="mdi mdi-camera" @click="$emit('Get-Photo')"></span></v-col>
                 </v-row>
             </v-col>
@@ -109,9 +109,11 @@
 
 <script>
 import iSelect from "../../components/Base/iSelect"
+import { staffPhotoMixin } from "../../utils/staffPhoto"
 
 export default {
     name: 'StaffInput',
+    mixins: [staffPhotoMixin],
     components: {
         iSelect,
     },
@@ -124,7 +126,7 @@ export default {
     },
     methods:{
         getImg(img){
-            return this.param.fileURL.concat((img)?img:this.param.defaultImage)
+            return this.staffPhotoSrc(img, this.param)
         }
     }
 }

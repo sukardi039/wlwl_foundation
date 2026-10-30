@@ -443,6 +443,7 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import { mapState } from "vuex";
 
 import DrillMessage from "./DrillMessage";
@@ -463,6 +464,7 @@ import Template from "../../views/Template.vue";
 import Chat from "../Chat/ChatBox";
 export default {
   name: "DrillPlatform",
+  mixins: [staffPhotoMixin],
   components: {
     DrillMessage,
     DrillStaffMessage,
@@ -571,10 +573,7 @@ export default {
     },
     getPhoto(staffId) {
       if (staffId) {
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

@@ -17,7 +17,7 @@
           <v-card-text>
             <v-row>
               <v-col cols="4">
-                <v-img :src="getPhoto(whereis(myMessage[1].from))" alt="" />
+                <v-img :src="getPhoto(whereis(myMessage[1].from))" @error="onStaffPhotoError" alt="" />
               </v-col>
               <v-col auto class="text-start"><h4>
                 <span v-html="packMsg()"></span></h4>
@@ -45,9 +45,11 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import DrillMessageBox from "./DrillMessageBox";
 export default {
   name: "DrillStaffMessage",
+  mixins: [staffPhotoMixin],
   components:{
     DrillMessageBox,
   },
@@ -71,9 +73,7 @@ export default {
     getPhoto(staffId) {
       var p = "";
       if (staffId > 0) {
-        p =
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto;
+        p = this.drillStaffPhoto(this.paramdata, staffId);
       } else if (staffId == -1) {
         // notice
         p = this.paramdata.params_ref.params.fileURL + "notice.png";
@@ -97,10 +97,7 @@ export default {
         if (staffId == -1) {
           return this.paramdata.params_ref.params.fileURL + "allStaff.png";
         }
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

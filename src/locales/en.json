@@ -33,6 +33,9 @@
   "general": {
     "incomplete": "Please complete the data before proceeding",
     "fileTooBig": "Unable to upload large files, please reduce the file size or choose another file",
+    "fileType": "Only JPEG or PNG images are supported, please choose another file",
+    "uploadFailed": "Image upload failed",
+    "sessionExpired": "Your session has expired, please sign in again",
     "day1": "Day",
     "day2": "",
     "day": "Day"

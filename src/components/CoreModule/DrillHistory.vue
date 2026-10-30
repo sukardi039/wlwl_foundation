@@ -25,7 +25,7 @@
                         @click.stop="$emit('Profile-Progress', mb)"
                       >
                         <v-img
-                          :src="getPhoto(mb.staffName)"
+                          :src="getPhoto(mb.staffName)" @error="onStaffPhotoError"
                           alt=""
                           height="65px"
                           contain
@@ -241,7 +241,7 @@
                     <v-col cols="1">
                       <v-avatar size="35" class="grey lighten-2">
                         <v-img
-                          :src="getPhoto(getStaffId(m.staff))"
+                          :src="getPhoto(getStaffId(m.staff))" @error="onStaffPhotoError"
                           alt=""
                           height="40px"
                           contain
@@ -334,10 +334,12 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 export default {
   name: "DrillHistory",
+  mixins: [staffPhotoMixin],
   data() {
     return {
       step: -1,
@@ -355,10 +357,7 @@ export default {
   methods: {
     getPhoto(staffId) {
       if (staffId) {
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

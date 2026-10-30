@@ -247,6 +247,7 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import DrillMessageBar from "./DrillMessageBar";
 import DrillStyle from "./DrillStyle";
 import DrillAction from "./DrillAction";
@@ -256,6 +257,7 @@ import DrillStaffHead from "./DrillStaffHead";
 import DrillStaffStatus from "./DrillStaffStatus";
 export default {
   name: "DrillStaff",
+  mixins: [staffPhotoMixin],
   components: {
     DrillMessageBar,
     DrillStyle,
@@ -322,10 +324,7 @@ export default {
         if (staffId == -1) {
           return this.paramdata.params_ref.params.fileURL + "allStaff.png";
         }
-        return (
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto
-        );
+        return this.drillStaffPhoto(this.paramdata, staffId);
       }
       return this.paramdata.params_ref.params.fileURL + "default.png";
     },

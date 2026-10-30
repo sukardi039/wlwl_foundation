@@ -16,10 +16,12 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import { mapState } from "vuex";
 import DrillMessageBox from "./DrillMessageBox";
 export default {
   name: "DrillMessage",
+  mixins: [staffPhotoMixin],
   components: {
     DrillMessageBox,
   },
@@ -54,9 +56,7 @@ export default {
     getPhoto(staffId) {
       var p = "";
       if (staffId > 0) {
-        p =
-          this.paramdata.params_ref.params.fileURL +
-          this.paramdata.staff_det.staff[staffId].staffPhoto;
+        p = this.drillStaffPhoto(this.paramdata, staffId);
       } else if (staffId == -1) {
         // notice
         p = this.paramdata.params_ref.params.fileURL + "notice.png";

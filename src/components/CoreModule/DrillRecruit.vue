@@ -51,7 +51,7 @@
                             <v-col cols="5" class="text-center">
                                 <v-avatar size="70" class="grey lighten-2">
                                     <v-img
-                                    :src="getPhoto(member.staffName)"
+                                    :src="getPhoto(member.staffName)" @error="onStaffPhotoError"
                                     alt=""
                                     height="80px"
                                     contain
@@ -135,10 +135,12 @@
 </template>
 
 <script>
+import { staffPhotoMixin } from "../../utils/staffPhoto";
 import DrillMessageBar from "./DrillMessageBar";
 
 export default {
     name: 'DrillRecruit',
+    mixins: [staffPhotoMixin],
     components: {
         DrillMessageBar,
     },
@@ -181,10 +183,7 @@ export default {
             this.clearMessage();
         },
         getPhoto(staffId) {
-            return (
-            this.paramdata.params_ref.params.fileURL +
-            this.paramdata.staff_det.staff[staffId].staffPhoto
-            );        
+            return this.drillStaffPhoto(this.paramdata, staffId);        
         },
         getProfile(staffId, prof) {
             let pf = ['skillsProfile', 'moraleProfile','efficiencyProfile']
