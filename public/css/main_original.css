@@ -91,7 +91,7 @@
   background: rgb(51, 50, 50);
 }
 .report-frame{
-  background-image: url('/images/reporthead.jpg');
+  background-image: url('/app-images/reporthead.jpg');
   background-size: cover;
   width: 1100px;
   height: 1650px;

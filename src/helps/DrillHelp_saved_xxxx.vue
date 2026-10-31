@@ -3,7 +3,7 @@
     <h3>{{$t('Helps.enter1')}}{{$t('Nav.Drill')}}{{$t('Helps.enter2')}}</h3>
     <br>
     <v-img
-      src="images/drillpage1.png"
+      src="/app-images/drillpage1.png"
     />
     <v-divider></v-divider>
     <v-row>
@@ -14,7 +14,7 @@
       <v-col></v-col>
     </v-row>
     <v-img
-      src="images/drillpage2.png"
+      src="/app-images/drillpage2.png"
     />
     <v-divider></v-divider>
     <v-row>
@@ -85,7 +85,7 @@
       <v-col></v-col>
     </v-row>
     <v-img
-      src="images/drillpage3.png"
+      src="/app-images/drillpage3.png"
     />
     <v-divider></v-divider>
     <v-row>

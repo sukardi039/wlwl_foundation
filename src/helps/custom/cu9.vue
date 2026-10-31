@@ -2,7 +2,7 @@
   <v-container class="help-content">
     <v-row dense>
       <v-col cols="7">
-        <v-img src="images/custom9.png" width="450px"/>
+        <v-img src="/app-images/custom9.png" width="450px"/>
       </v-col>
       <v-col>
         <v-row dense>

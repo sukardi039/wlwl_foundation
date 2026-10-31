@@ -26,11 +26,11 @@ export default {
     getPhoto(staffId) {
       if (staffId) {
         if (staffId == -1) {
-          return this.paramdata.params_ref.params.fileURL + "allStaff.png";
+          return this.appImageUrl("allStaff.png");
         }
         return this.drillStaffPhoto(this.paramdata, staffId);
       }
-      return this.paramdata.params_ref.params.fileURL + "default.png";
+      return this.appImageUrl("default.png");
     },
   },
 };

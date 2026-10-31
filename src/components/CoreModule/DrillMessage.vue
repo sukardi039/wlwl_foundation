@@ -59,18 +59,18 @@ export default {
         p = this.drillStaffPhoto(this.paramdata, staffId);
       } else if (staffId == -1) {
         // notice
-        p = this.paramdata.params_ref.params.fileURL + "notice.png";
+        p = this.appImageUrl("notice.png");
       } else if (staffId == -2) {
         // environment
-        p = this.paramdata.params_ref.params.fileURL + "enviro.png";
+        p = this.appImageUrl("enviro.png");
       } else if (staffId == -3) {
         // boss
-        p = this.paramdata.params_ref.params.fileURL + "boss.jpg";
+        p = this.appImageUrl("boss.jpg");
       } else if (staffId == -4) {
         // boss
-        p = this.paramdata.params_ref.params.fileURL + "review.png";
+        p = this.appImageUrl("review.png");
       } else {
-        p = this.paramdata.params_ref.params.fileURL + "default.png";
+        p = this.appImageUrl("default.png");
       }
       console.logstaffId, p;
       return p;

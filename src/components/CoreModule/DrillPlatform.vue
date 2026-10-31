@@ -575,7 +575,7 @@ export default {
       if (staffId) {
         return this.drillStaffPhoto(this.paramdata, staffId);
       }
-      return this.paramdata.params_ref.params.fileURL + "default.png";
+      return this.appImageUrl("default.png");
     },
     redOrGreen(v) {
       let c = "transparent";

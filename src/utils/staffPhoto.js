@@ -2,9 +2,18 @@
  * Staff photo helpers for the backend media API (see docs/FRONTEND_IMAGES.md).
  *
  * staffPhoto stores an image ID served by GET /backend/media/images/{id}.
- * Placeholders (default.png, notice.png, ...) and names the media API cannot
- * serve are still resolved against params.fileURL.
+ * Placeholders (default.png, boss.jpg, ...) ship with the frontend in
+ * public/app-images. Other names the media API cannot serve (e.g. .jfif) are
+ * still resolved against params.fileURL on the backend.
  */
+
+// Frontend-owned images; /app-images/ is served by the frontend, not proxied.
+const APP_IMAGES_PATH = `${process.env.BASE_URL || '/'}app-images/`
+const BUNDLED_PLACEHOLDERS = ['default.png', 'allStaff.png', 'boss.jpg', 'enviro.png', 'notice.png', 'review.png']
+
+export function appImageUrl(name) {
+  return APP_IMAGES_PATH + name
+}
 
 // Empty because /backend is proxied on the frontend origin (nginx / devServer).
 const backendOrigin = ''
@@ -39,16 +48,19 @@ export function staffPhotoUrl(id) {
   return backendUrl(`${MEDIA_IMAGES_PATH}/${encodeURIComponent(id)}`)
 }
 
-/** URL of a static placeholder image under params.fileURL. */
+/** URL of a placeholder image; bundled ones come from the frontend, others from params.fileURL. */
 export function placeholderUrl(params, name) {
   const p = params || {}
-  return (p.fileURL || '') + (name || p.defaultImage || 'default.png')
+  const file = name || p.defaultImage || 'default.png'
+  if (BUNDLED_PLACEHOLDERS.includes(file)) return appImageUrl(file)
+  return (p.fileURL || '') + file
 }
 
 /** Resolve a staffPhoto value to a displayable URL, falling back to a placeholder. */
 export function resolveStaffPhoto(photo, params, placeholder) {
   if (!photo) return placeholderUrl(params, placeholder)
   if (isMediaImageId(photo)) return staffPhotoUrl(photo)
+  if (BUNDLED_PLACEHOLDERS.includes(String(photo))) return appImageUrl(photo)
   return ((params && params.fileURL) || '') + photo
 }
 
@@ -98,6 +110,7 @@ export const staffPhotoMixin = {
     onStaffPhotoError(url) {
       if (url && !this.failedStaffPhotos[url]) this.$set(this.failedStaffPhotos, url, true)
     },
+    appImageUrl,
     drillStaffPhoto(paramdata, staffId) {
       const list = paramdata && paramdata.staff_det && paramdata.staff_det.staff
       const staff = list && list[staffId]

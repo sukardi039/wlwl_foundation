@@ -1,7 +1,7 @@
 <template>
   <v-container class="pa-2">
     <v-img
-      src="images/signin.png"
+      src="/app-images/signin.png"
     />
     <v-divider></v-divider>
     <v-row>
@@ -52,7 +52,7 @@
       <v-col></v-col>
     </v-row>
     <v-img
-      src="images/mainpage.png"
+      src="/app-images/mainpage.png"
     />
     <v-divider></v-divider>
     <v-row>
@@ -83,7 +83,7 @@
       <v-col></v-col>
     </v-row>
     <v-img
-      src="images/mainmenu.png"
+      src="/app-images/mainmenu.png"
     />
     <v-divider></v-divider>
     <v-row>
