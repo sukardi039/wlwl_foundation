@@ -136,7 +136,7 @@
   font-weight: bold;
 }
 .drill-list-head{
-  background: url('../../assets/leadershipinsea.png') no-repeat center center;
+  background: url('/app-images/leadershipinsea.png') no-repeat center center;
   position: obsolute;
   object-fit: cover;
   width: 100%;

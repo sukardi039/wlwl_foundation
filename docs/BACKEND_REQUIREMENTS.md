@@ -85,3 +85,21 @@ The frontend's nginx already allows 8 MiB request bodies on `/backend/`.
 UI placeholder images (`default.png`, `allStaff.png`, `boss.jpg`, `enviro.png`, `notice.png`,
 `review.png`) and the help screenshots now ship with the frontend under `/app-images/`. The
 backend `/images/` path is only needed for staff photos the media API cannot serve.
+
+## 4. Drill summary and history are wiped on every step (bug)
+
+**Symptom:** the drill report's weekly chart (每周团队状态数据图) shows only the End point. A finished drill's `content.summary` holds only the last step (every member's `totalAdd` equals `total`), and `content.history` holds only the last step's rows.
+
+**Cause:** `PhpJson.fromJson` decodes a JSON array into a `java.util.List`. `PhpArray.child(key)` only reuses an existing `PhpArray`; for a `List` it silently puts a new empty `PhpArray` in its place. The client sends the whole content back on each step, so:
+
+- `DrillCommon.writeSummary`: `cont.child("summary")` starts from empty, so only the current step is kept.
+- `DrillCommon.writeHistory`: `cont.child("history").append(...)`, same.
+- Same pattern: `BossReview` `child("bossReview")` and `child("log").child("action")`, and `DrillCommon` `ct.child("debug")`.
+
+Not visible in the parity tests because their content is built in Java (`PhpArray`), not decoded from client JSON.
+
+**Fix (backend):** make `PhpArray.child()` convert an existing `List` in place (copy the elements under keys 0..n-1), like the `mutableChild()` helpers already in `DrillCommon`, `DrillAction` and `DrillEnvironment`. Alternatively, have `fromJson` decode arrays to `PhpArray` everywhere. Add a test that decodes a content JSON with a non-empty `summary` array, runs `writeSummary`, and asserts the old entries are still there.
+
+**Frontend workaround (in place):** `Drill.vue` `serializeContent()` sends `summary`, `history`, `bossReview`, `debug` and `log.action` as index-keyed objects (`{"0": ..., "1": ...}`). These decode to `PhpArray`, are appended to correctly, and are returned as normal JSON arrays. Verified against the compiled backend classes: 3 steps give 3 summary entries (`INTRODUCTION`, `MORE_ACTIONS`, `MORE_ACTIONS`) instead of 1. The workaround is harmless after the backend fix and can be removed then.
+
+Drills already played on the Java backend have lost this data permanently; their charts cannot be recovered.

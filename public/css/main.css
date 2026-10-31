@@ -159,7 +159,7 @@
   font-weight: bold;
 }
 .drill-list-head {
-  background: url("../../assets/leadershipinsea.png") no-repeat center center;
+  background: url("/app-images/leadershipinsea.png") no-repeat center center;
   position: obsolute;
   object-fit: cover;
   width: 100%;
@@ -241,7 +241,7 @@
   font-size: 0.8em;
 }
 .login-background {
-  background-image: url("../assets/signinbackground.png");
+  background-image: url("/app-images/signinbackground.png");
   opacity: 85%;
   color: primary;
 }
@@ -257,7 +257,7 @@
   font-size: 0.6em;
 }
 .login-page-background {
-  background-image: url("../assets/loginbackground.png");
+  background-image: url("/app-images/loginbackground.png");
   width: 100%;
   height: 100%;
 }
@@ -288,7 +288,7 @@
   font-size: small;
 }
 .selecting-bar{
-  background-image: url('../../assets/select.png');
+  background-image: url('/app-images/select.png');
   position: absolute;
   width: 100%;
   height: 100%;

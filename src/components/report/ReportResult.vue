@@ -423,18 +423,17 @@ export default {
       }
       return c;
     },
+    summaryList() {
+      // summary may arrive as an object keyed "0","1",... instead of an array
+      const s = this.data && this.data.content && this.data.content.summary;
+      const list = Array.isArray(s) ? s : Object.values(s || {});
+      return list.filter((e) => e && e.teamAvg);
+    },
     findSummary(v, t) {
-      let z = "";
-      for (let c = 0; c < this.data.content.summary.length; c++) {
-        if (
-          this.data.content.summary[c].phase == t &&
-          this.data.content.summary[c].day == v
-        ) {
-          z = this.data.content.summary[c];
-          break;
-        }
-      }
-      return z;
+      const list = this.summaryList();
+      return (
+        list.find((e) => String(e.phase) == t && Number(e.day) === v) || ""
+      );
     },
     getChartData() {
       this.chartData.labels = [];
@@ -442,20 +441,30 @@ export default {
       this.chartData.datasets[1].data = []; // morale
       this.chartData.datasets[2].data = []; // efficiency
       // this.chartData.datasets[3].data = []; // target
-      let d = 0;
-      let r = this.findSummary(d, "INTRODUCTION");
-      if (r) {
-        this.setChartData(r, d, '');
+      const list = this.summaryList();
+      if (!list.length) {
+        return;
       }
-      while (r) {
-        d++;
-        r = this.findSummary(d*5, "MORE_ACTIONS");
+      const start = this.findSummary(0, "INTRODUCTION") || list[0];
+      this.setChartData(start, 0, "");
+      // Week w is the MORE_ACTIONS snapshot on day 5w; when that exact entry is missing,
+      // fall back to the latest snapshot inside the week so the line still has a point.
+      const maxDay = Math.max(...list.map((e) => Number(e.day) || 0));
+      for (let w = 1; w * 5 <= maxDay; w++) {
+        let r = this.findSummary(w * 5, "MORE_ACTIONS");
+        if (!r) {
+          const inWeek = list.filter((e) => {
+            const d = Number(e.day);
+            return d > (w - 1) * 5 && d <= w * 5;
+          });
+          r = inWeek[inWeek.length - 1];
+        }
         if (r) {
-          this.setChartData(r, d, this.$t('DrillReport.result-week'));
+          this.setChartData(r, w, this.$t("DrillReport.result-week"));
         }
       }
-      r = this.data.content.summary[this.data.content.summary.length - 1];
-      this.setChartData(r, r.day, '.');
+      const last = list[list.length - 1];
+      this.setChartData(last, last.day, ".");
     },
     setChartData(r, v, w) {
       if (w!='.'){

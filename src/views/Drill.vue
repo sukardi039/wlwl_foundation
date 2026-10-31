@@ -235,7 +235,7 @@ export default {
       // console.log("submit", ev);
       // Send a copy so the live record keeps its object content while the request is pending;
       // otherwise the header render and the countdown timer read fields off a JSON string.
-      this.fetchbuffer.qdata = { ...ev, content: JSON.stringify(ev.content) };
+      this.fetchbuffer.qdata = { ...ev, content: this.serializeContent(ev.content) };
       this.drillRecord = await this.GetInfo(
         "ACTION",
         "",
@@ -267,7 +267,7 @@ export default {
     async submitEnvironment() {
       let ev = this.drillRecord;
       // console.log("submit", ev);
-      this.fetchbuffer.qdata = { ...ev, content: JSON.stringify(ev.content) };
+      this.fetchbuffer.qdata = { ...ev, content: this.serializeContent(ev.content) };
       this.drillRecord = await this.GetInfo(
         "ENVIRONMENT",
         "",
@@ -745,8 +745,10 @@ export default {
     // },
     async timeOut() {
       // console.log("submit timeout", this.drillRecord);
-      this.drillRecord.content = JSON.stringify(this.drillRecord.content);
-      this.fetchbuffer.qdata = this.drillRecord;
+      this.fetchbuffer.qdata = {
+        ...this.drillRecord,
+        content: this.serializeContent(this.drillRecord.content),
+      };
 
       this.drillRecord = await this.GetInfo(
         "TIMEOUT",
@@ -757,6 +759,20 @@ export default {
       );
       this.$store.commit("setDrilldata", await this.drillRecord);
       this.checkMessage(this.drillRecord);
+    },
+    serializeContent(content) {
+      // The Java backend decodes JSON arrays as read-only lists and replaces them with an
+      // empty array when it appends, wiping summary/history every step. Sending these
+      // as index-keyed objects keeps them; the backend returns them as normal arrays.
+      const asObject = (a) => (Array.isArray(a) ? Object.assign({}, a) : a);
+      const c = { ...content };
+      ["summary", "history", "bossReview", "debug"].forEach((k) => {
+        if (k in c) c[k] = asObject(c[k]);
+      });
+      if (c.log && Array.isArray(c.log.action)) {
+        c.log = { ...c.log, action: asObject(c.log.action) };
+      }
+      return JSON.stringify(c);
     },
     flashMemberAdded() {
       if (
