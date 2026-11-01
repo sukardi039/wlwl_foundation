@@ -141,6 +141,15 @@ docker logs wlwl-foundation
 - Review application logs: `docker logs wlwl-foundation`
 - Verify port 80 is available
 
+If a Swarm update pauses while the old container remains healthy, inspect the
+replacement container's startup logs before restarting the service. A successful
+image build does not guarantee that Nginx can start.
+
+Nginx location regular expressions containing `{}` quantifiers must be quoted,
+for example `location ~* "\.[0-9a-f]{8}\.(js|css)$"`. Without quotes, Nginx
+interprets the braces as configuration delimiters and exits with an
+`unknown directive` error.
+
 ### Performance Issues
 
 - Monitor memory usage: `docker stats wlwl-foundation`
