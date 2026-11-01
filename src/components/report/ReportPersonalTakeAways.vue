@@ -73,6 +73,15 @@ export default {
   methods: {
     parameters(finding) {
       const params = { ...finding.params };
+      ["startDay", "endDay", "day"].forEach(key => {
+        if (Object.prototype.hasOwnProperty.call(params, key)) {
+          const value = params[key];
+          const day = typeof value === "number" || (typeof value === "string" && value.trim())
+            ? Number(value) : NaN;
+          params[key] = Number.isInteger(day) && day >= 0
+            ? day : this.$t("DrillReport.personal-takeaways.unavailable-day");
+        }
+      });
       Object.keys(params).forEach(key => {
         if (typeof params[key] === "number") {
           params[key] = new Intl.NumberFormat(this.$i18n.locale === "cn" ? "zh-CN" : this.$i18n.locale,
@@ -86,10 +95,6 @@ export default {
       if (params.actions) {
         params.actions = params.actions.map(action => this.actionLabel(action))
           .join(this.$t("DrillReport.personal-takeaways.action-separator"));
-        const day = this.data.content.day && this.data.content.day[finding.params.day];
-        params.when = day
-          ? this.$t("DrillReport.personal-takeaways.week-day", { week: day.week, day: day.weekday })
-          : this.$t("DrillReport.personal-takeaways.step", { step: params.step });
       }
       return params;
     },

@@ -20,10 +20,10 @@ function loadScript(source, resolve = require) {
 const root = path.resolve(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
 const engine = loadScript(read("src\\utils\\reportTakeaways.js"));
-const { buildReportTakeaways, type2Style } = engine;
+const { buildReportTakeaways, type2Style, personalisedReportEnabled } = engine;
 const keys = findings => findings.map(finding => finding.key);
 const snapshot = (step, skills, morale, efficiency, extra = {}) => ({
-  step, day: step, member: [{ staff: "Alex", skills, morale, efficiency, ...extra }],
+  step, day: step + 10, member: [{ staff: "Alex", skills, morale, efficiency, ...extra }],
 });
 const member = { staffName: 1, staffExp: "Alex", skillsValue: 40, moraleValue: 70 };
 const fixture = {
@@ -62,9 +62,10 @@ assert.deepStrictEqual(keys(result.priorities), [
 ]);
 const decline = result.priorities[0].params;
 assert.strictEqual(decline.change, 15);
-assert.strictEqual(decline.startStep, 0);
-assert.strictEqual(decline.endStep, 2);
-assert.strictEqual(decline.step, 2);
+assert.strictEqual(decline.startDay, 10);
+assert.strictEqual(decline.endDay, 12);
+assert.strictEqual(decline.day, 12);
+assert(!("step" in decline));
 assert.deepStrictEqual(decline.actions, ["_u.a_interview", "_u.a_coach"]);
 assert(!result.principles.includes(4));
 assert(result.principles.includes(1));
@@ -141,8 +142,25 @@ for (const locale of ["en", "cn"]) {
   assert(rendered.includes("Alex"));
   assert(!rendered.includes("DrillReport."), "all rendered report keys must resolve");
   assert(!rendered.includes("_u."), "historical actions must be translated");
-  assert(rendered.includes(locale === "en" ? "week 1, day 2" : "第1周第2天"));
+  assert(rendered.includes(locale === "en" ? "drill day 12" : "演练第12天"));
+  assert(!/Type\s*[12]|第[一二]类型|步骤|\bstep\b/i.test(rendered));
+  assert(!/\{(?:startDay|endDay|day)\}/.test(rendered));
+  assert(!Object.values(translations(locale)).some(value =>
+    /Type\s*[12]|第[一二]类型|步骤|\bstep\b/i.test(value)));
 }
+for (const locale of ["en", "cn"]) {
+  i18n.locale = locale;
+  vm.data = growth;
+  const rendered = text(vm._render());
+  assert(rendered.includes(locale === "en" ? "drill day 10" : "演练第10天"));
+  assert(!/Type\s*[12]|第[一二]类型|\bstep\b/i.test(rendered));
+  const missingDays = JSON.parse(JSON.stringify(fixture));
+  missingDays.content.summary.forEach(entry => { delete entry.day; });
+  vm.data = missingDays;
+  assert(text(vm._render()).includes(translations(locale)["unavailable-day"]));
+  assert(!text(vm._render()).includes("undefined"));
+}
+vm.data = fixture;
 const unlabelled = JSON.parse(JSON.stringify(fixture));
 unlabelled.content.summary[0].member[0].action = "_u.unavailable_custom_action";
 vm.data = unlabelled;
@@ -193,6 +211,8 @@ async function testPdf() {
     save(name) { this.filename = name; }
   }
   const reportComponent = loadScript(report.script.content, request => {
+    if (request === "vuex") return require(request);
+    if (request === "../../utils/reportTakeaways") return engine;
     if (request === "jspdf") return Pdf;
     if (request === "html2canvas") return async section => {
       assert(section, "all requested report sections must exist");
@@ -201,6 +221,23 @@ async function testPdf() {
     };
     return {};
   }).default;
+  assert(!report.template.content.includes("v-switch"), "report mode must not be user-selectable");
+  assert.deepStrictEqual(compiler.compile(report.template.content).errors, []);
+  for (const setting of [undefined, null, true, 1, "1"]) {
+    assert(personalisedReportEnabled({ params_ref: { params: { personalised_report: setting } } }));
+  }
+  assert(personalisedReportEnabled());
+  assert(personalisedReportEnabled({}));
+  for (const setting of [false, 0, "0", "false"]) {
+    assert(!personalisedReportEnabled({ params_ref: { params: { personalised_report: setting } } }));
+  }
+  const reportVm = new Vue({ ...reportComponent, store, propsData: { data: fixture } });
+  assert.strictEqual(reportVm.personalisedTakeaways, true);
+  store.state.paramdata = { params_ref: { params: { theory_type: 2, personalised_report: 0 } } };
+  assert.strictEqual(reportVm.personalisedTakeaways, false);
+  store.state.paramdata = { params_ref: { params: { theory_type: 2 } } };
+  assert.strictEqual(reportVm.personalisedTakeaways, true);
+  reportVm.$destroy();
   for (const personalisedTakeaways of [true, false]) {
     const selectors = [];
     const context = {
@@ -231,7 +268,7 @@ async function testPdf() {
     [150.00001, 9], [151, 9], [152, 10], [300.00001, 10], [302, 11],
   ]) {
     const context = {
-      ...reportComponent.data(), genPDF: 1,
+      ...reportComponent.data(), genPDF: 1, personalisedTakeaways: true,
       data: { content: { analysis: { reportUser: "Boundary", reportDate: "2026-11-01" } } },
       $nextTick: async () => {}, $t: key => i18n.t(key),
       $refs: { report: { querySelector: selector => selector === "#hdr"
@@ -245,7 +282,7 @@ async function testPdf() {
     assert.strictEqual(context.exportError, "");
   }
   const radarContext = {
-    ...reportComponent.data(), genPDF: 1,
+    ...reportComponent.data(), genPDF: 1, personalisedTakeaways: true,
     data: { content: { analysis: { reportUser: "Radar", reportDate: "2026-11-01" } } },
     $nextTick: async () => {}, $t: key => i18n.t(key),
     $refs: { report: { querySelector: selector => selector === "#hdr"

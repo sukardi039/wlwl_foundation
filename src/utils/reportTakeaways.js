@@ -32,6 +32,12 @@ export function type2Style(skills, morale) {
   return Number(morale) > 50 ? styles[0] : styles[1];
 }
 
+export function personalisedReportEnabled(paramdata) {
+  const ref = paramdata && paramdata.params_ref;
+  const setting = ref && ref.params && ref.params.personalised_report;
+  return ![false, 0, "0", "false"].includes(setting);
+}
+
 export function buildReportTakeaways(data, theoryType) {
   const result = { strengths: [], priorities: [], principles: [1, 2, 3, 4, 5, 6, 7], notices: [] };
   const content = data && data.content;
@@ -113,14 +119,14 @@ export function buildReportTakeaways(data, theoryType) {
     if (skillsChange > 0 && moraleChange > 0) {
       add("strengths", "development",
         { member: memberName, skillsChange, moraleChange,
-          startStep: first.step, endStep: last.step },
+          startDay: first.day, endDay: last.day },
         skillsChange + moraleChange);
     }
     const efficiencyChange = score(first.efficiency) !== null && score(last.efficiency) !== null
       ? Number(last.efficiency) - Number(first.efficiency) : null;
     if (efficiencyChange > 0) {
       add("strengths", "efficiency", { member: memberName, change: efficiencyChange,
-        startStep: first.step, endStep: last.step }, efficiencyChange);
+        startDay: first.day, endDay: last.day }, efficiencyChange);
     }
     const changes = { skills: skillsChange, morale: moraleChange };
     if (efficiencyChange !== null) changes.efficiency = efficiencyChange;
@@ -131,10 +137,9 @@ export function buildReportTakeaways(data, theoryType) {
         number(entry[metric + "Add"]) !== null && Number(entry[metric + "Add"]) < 0
       ).sort((a, b) => Number(a[metric + "Add"]) - Number(b[metric + "Add"]))[0];
       const evidence = { member: memberName, change: Math.abs(changes[metric]),
-        startStep: first.step, endStep: last.step };
+        startDay: first.day, endDay: last.day };
       if (decline) {
         evidence.actions = decline.action.split("/").filter(Boolean);
-        evidence.step = decline.step;
         evidence.day = decline.day;
         evidence.delta = Math.abs(Number(decline[metric + "Add"]));
       }
@@ -148,7 +153,7 @@ export function buildReportTakeaways(data, theoryType) {
       if (previous) {
         add("priorities", "transition",
           { member: memberName, fromStyle: type2Style(previous.skills, previous.morale),
-            style: type2Style(last.skills, last.morale), startStep: previous.step, endStep: last.step },
+            style: type2Style(last.skills, last.morale), startDay: previous.day, endDay: last.day },
           65, [7]);
       }
     }

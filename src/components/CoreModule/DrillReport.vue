@@ -17,14 +17,6 @@
             </v-progress-circular>
           </div>
           <v-spacer></v-spacer>
-          <v-switch
-            v-model="personalisedTakeaways"
-            :label="$t('DrillReport.personal-takeaways.toggle')"
-            :disabled="!!genPDF"
-            hide-details
-            dense
-            class="mt-0 mr-3"
-          />
           <v-btn
             v-if="!genPDF"
             outlined
@@ -65,6 +57,8 @@
 import ReportBase from "../report/ReportBase.vue";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
+import { mapState } from "vuex";
+import { personalisedReportEnabled } from "../../utils/reportTakeaways";
 
 export default {
   name: "DrillReport",
@@ -74,7 +68,6 @@ export default {
   data() {
     return {
       genPDF: 0,
-      personalisedTakeaways: true,
       exportError: "",
       x: 0,
       len: 0,
@@ -97,6 +90,12 @@ export default {
   },
   props: {
     data: {},
+  },
+  computed: {
+    ...mapState({ paramdata: "paramdata" }),
+    personalisedTakeaways() {
+      return personalisedReportEnabled(this.paramdata);
+    },
   },
   methods: {
     async doPDF() {

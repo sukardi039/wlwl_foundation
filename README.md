@@ -20,15 +20,21 @@ See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ### Evaluation report takeaways
 
-Reports default to personalised takeaways. Turn off **Personalised takeaways**
-in the report toolbar to use the original seven-pointer section unchanged.
-The selected version is also included in the PDF download.
+Reports default to personalised takeaways, with no user-facing mode switch.
+Administrators can set `paramdata.params_ref.params.personalised_report` to `0`
+or `false` (including strings `"0"` or `"false"`) to use the original
+seven-pointer section unchanged. An absent setting keeps personalisation enabled.
+The same parameter controls both the on-screen report and PDF download.
 
 Personalisation uses `content.summary` member histories (ordered by `step`),
 current member competence/morale, recorded style alignment and per-member action
 impact and attention counts. It shows up to two strengths and four distinct improvement priorities,
 then keeps universal principles not already covered by those priorities.
 Historical findings include members who have left the current team.
+User-facing history references use the recorded drill `day`, not internal
+`step` numbers or week/day conversions. Day 0 is preserved if recorded;
+missing or invalid day numbers are labelled unavailable rather than inferred.
+Leadership theory types remain internal and are not named in report wording.
 
 Type 2 readiness suggestions require `params_ref.params.theory_type = 2`.
 The competence/morale boundary follows the history display's high band: values
