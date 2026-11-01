@@ -116,10 +116,19 @@ export default {
         for (const section of this.forPDF) {
           const canvas = await html2canvas(section);
           const image = canvas.toDataURL("image/jpeg", 0.8);
-          const imageHeight = canvas.height * pageWidth / canvas.width;
+          let imageHeight = canvas.height * pageWidth / canvas.width;
+          const pixelHeight = pageWidth / canvas.width;
+          const nearestPageHeight = Math.round(imageHeight / pageHeight) * pageHeight;
+          // Canvas/PDF rounding can leave a sub-pixel tail on an otherwise full page.
+          if (nearestPageHeight > 0 &&
+              Math.abs(imageHeight - nearestPageHeight) <= pixelHeight) {
+            imageHeight = nearestPageHeight;
+          }
+          const pageCount = Math.max(1, Math.ceil(imageHeight / pageHeight));
           // Preserve aspect ratio and paginate long translated takeaways rather than squash them.
-          for (let offset = 0; offset < imageHeight; offset += pageHeight) {
-            if (this.x || offset) doc.addPage();
+          for (let page = 0; page < pageCount; page++) {
+            const offset = page * pageHeight;
+            if (this.x || page) doc.addPage();
             doc.addImage(image, "JPEG", 0, -offset, pageWidth, imageHeight, "", "FAST");
           }
           this.x++;

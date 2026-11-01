@@ -227,6 +227,23 @@ async function testPdf() {
     assert.strictEqual(doc.images[8][5], personalisedTakeaways ? 450 : 150,
       "long sections must retain their aspect ratio");
   }
+  for (const [height, expectedPages] of [
+    [150.00001, 9], [151, 9], [152, 10], [300.00001, 10], [302, 11],
+  ]) {
+    const context = {
+      ...reportComponent.data(), genPDF: 1,
+      data: { content: { analysis: { reportUser: "Boundary", reportDate: "2026-11-01" } } },
+      $nextTick: async () => {}, $t: key => i18n.t(key),
+      $refs: { report: { querySelector: selector => selector === "#hdr"
+        ? { scrollWidth: 100, scrollHeight: 150 }
+        : { height: selector === ".reportDiv4" ? height : 150 } } },
+    };
+    await reportComponent.methods.doPDF.call(context);
+    const doc = documents[documents.length - 1];
+    assert.strictEqual(doc.pages, expectedPages, "pagination boundary at height " + height);
+    assert.strictEqual(doc.images.length, expectedPages);
+    assert.strictEqual(context.exportError, "");
+  }
   const failed = { ...reportComponent.data(), genPDF: 1,
     $nextTick: async () => {}, $refs: { report: null }, $t: key => i18n.t(key) };
   const originalError = console.error;

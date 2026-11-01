@@ -47,6 +47,8 @@ English and Chinese templates render the same findings in the selected language,
 including translated action/style names. Missing action labels are explicitly
 identified in the selected language. Longer report sections are paginated
 in PDF exports without stretching their aspect ratio.
+PDF pagination normalises canvas rounding within one source pixel of a page
+boundary to avoid effectively blank overflow pages.
 
 Run focused recommendation and bilingual-render checks:
 ```
