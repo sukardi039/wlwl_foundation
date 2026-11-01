@@ -40,7 +40,12 @@
     />
         </div>
         <div class="reportDiv8">
-    <ReportTakeAways 
+    <ReportPersonalTakeAways
+        v-if="personalisedTakeaways"
+        :data="data"
+    />
+    <ReportTakeAways
+        v-else
     />
         </div>
     </v-container>
@@ -63,6 +68,7 @@ import ReportDistribute from "./ReportDistribute.vue";
 import ReportEfficiency from "./ReportEfficiency.vue";
 import ReportFood4Thought from "./ReportFood4Thought.vue";
 import ReportTakeAways from "./ReportTakeAways.vue";
+import ReportPersonalTakeAways from "./ReportPersonalTakeAways.vue";
 import ReportDisclaim from "./ReportDisclaim.vue";
 import ReportAbout from "./ReportAbout.vue";
 export default {
@@ -82,6 +88,7 @@ export default {
         ReportEfficiency,
         ReportFood4Thought,
         ReportTakeAways,
+        ReportPersonalTakeAways,
         ReportDisclaim,
         ReportAbout,
     },
@@ -92,6 +99,7 @@ export default {
     },
     props: {
         data: {},
+        personalisedTakeaways: { type: Boolean, default: true },
     },
     computed: {
         ...mapState({

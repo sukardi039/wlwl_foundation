@@ -17,6 +17,14 @@
             </v-progress-circular>
           </div>
           <v-spacer></v-spacer>
+          <v-switch
+            v-model="personalisedTakeaways"
+            :label="$t('DrillReport.personal-takeaways.toggle')"
+            :disabled="!!genPDF"
+            hide-details
+            dense
+            class="mt-0 mr-3"
+          />
           <v-btn
             v-if="!genPDF"
             outlined
@@ -43,8 +51,9 @@
           </v-btn>
         </v-card-title>
         <v-card-text>
-          <section id="theReport">
-            <ReportBase :data="data" />
+          <v-alert v-if="exportError" type="error">{{ exportError }}</v-alert>
+          <section id="theReport" ref="report">
+            <ReportBase :data="data" :personalisedTakeaways="personalisedTakeaways" />
           </section>
         </v-card-text>
       </v-card>
@@ -65,6 +74,8 @@ export default {
   data() {
     return {
       genPDF: 0,
+      personalisedTakeaways: true,
+      exportError: "",
       x: 0,
       len: 0,
       fab: false,
@@ -79,6 +90,7 @@ export default {
         ".reportDiv5",
         ".reportDiv6",
         ".reportDiv7",
+        ".reportDiv8",
       ],
       forPDF: [],
     };
@@ -88,48 +100,38 @@ export default {
   },
   methods: {
     async doPDF() {
-      //            this.genPDF = 1
-      var imgData;
-      var width = document.getElementById("hdr").scrollWidth;
-      var height = document.getElementById("hdr").scrollHeight;
-      //      var forPDF = document.querySelectorAll(".reportDiv");
-      for (var c = 0; c < this.listPDF.length; c++) {
-        this.forPDF[c] = document.querySelector(this.listPDF[c]);
-        //        console.log(c, this.listPDF[c], this.forPDF[c])
-      }
-      this.len = this.forPDF.length;
-      //      console.log(this.len, this.forPDF)
-      //      console.log(width, height, this.len);
-      var doc = new jsPDF("p", "px", [width, height]);
-      this.x = 0;
-      for (var i = 0; i < this.len; i++) {
-        await html2canvas(this.forPDF[i]).then((canvas) => {
-          doc.addImage(
-            canvas.toDataURL("image/jpg", 0.8),
-            "jpg",
-            0,
-            0,
-            width,
-            height,
-            "",
-            "FAST"
-          );
-          this.x++;
-          if (this.x === this.len) {
-            doc.save(
-              this.data.content.analysis.reportUser +
-                "-" +
-                this.data.content.analysis.reportDate +
-                `.pdf`
-            );
-            this.genPDF = 0;
-          } else {
-            doc.addPage();
+      this.exportError = "";
+      try {
+        await this.$nextTick();
+        const report = this.$refs.report;
+        const header = report.querySelector("#hdr");
+        const width = header.scrollWidth;
+        const height = header.scrollHeight;
+        this.forPDF = this.listPDF.map(selector => report.querySelector(selector));
+        this.len = this.forPDF.length;
+        this.x = 0;
+        const doc = new jsPDF("p", "px", [width, height]);
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        for (const section of this.forPDF) {
+          const canvas = await html2canvas(section);
+          const image = canvas.toDataURL("image/jpeg", 0.8);
+          const imageHeight = canvas.height * pageWidth / canvas.width;
+          // Preserve aspect ratio and paginate long translated takeaways rather than squash them.
+          for (let offset = 0; offset < imageHeight; offset += pageHeight) {
+            if (this.x || offset) doc.addPage();
+            doc.addImage(image, "JPEG", 0, -offset, pageWidth, imageHeight, "", "FAST");
           }
-          //                    }
-        });
+          this.x++;
+        }
+        doc.save(this.data.content.analysis.reportUser + "-" +
+          this.data.content.analysis.reportDate + ".pdf");
+      } catch (error) {
+        console.error("Failed to export drill report", error);
+        this.exportError = this.$t("DrillReport.personal-takeaways.export-error");
+      } finally {
+        this.genPDF = 0;
       }
-      return true;
     },
   },
 };
