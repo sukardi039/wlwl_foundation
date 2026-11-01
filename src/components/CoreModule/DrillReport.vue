@@ -113,9 +113,20 @@ export default {
         const doc = new jsPDF("p", "px", [width, height]);
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        for (const section of this.forPDF) {
+        for (const [index, section] of this.forPDF.entries()) {
           const canvas = await html2canvas(section);
           const image = canvas.toDataURL("image/jpeg", 0.8);
+          const paginate = this.personalisedTakeaways && this.listPDF[index] === ".reportDiv8";
+          if (!paginate) {
+            const scale = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
+            const imageWidth = canvas.width * scale;
+            const imageHeight = canvas.height * scale;
+            if (this.x) doc.addPage();
+            doc.addImage(image, "JPEG", (pageWidth - imageWidth) / 2, 0,
+              imageWidth, imageHeight, "", "FAST");
+            this.x++;
+            continue;
+          }
           let imageHeight = canvas.height * pageWidth / canvas.width;
           const pixelHeight = pageWidth / canvas.width;
           const nearestPageHeight = Math.round(imageHeight / pageHeight) * pageHeight;

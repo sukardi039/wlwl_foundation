@@ -236,7 +236,7 @@ async function testPdf() {
       $nextTick: async () => {}, $t: key => i18n.t(key),
       $refs: { report: { querySelector: selector => selector === "#hdr"
         ? { scrollWidth: 100, scrollHeight: 150 }
-        : { height: selector === ".reportDiv4" ? height : 150 } } },
+        : { height: selector === ".reportDiv8" ? height : 150 } } },
     };
     await reportComponent.methods.doPDF.call(context);
     const doc = documents[documents.length - 1];
@@ -244,6 +244,20 @@ async function testPdf() {
     assert.strictEqual(doc.images.length, expectedPages);
     assert.strictEqual(context.exportError, "");
   }
+  const radarContext = {
+    ...reportComponent.data(), genPDF: 1,
+    data: { content: { analysis: { reportUser: "Radar", reportDate: "2026-11-01" } } },
+    $nextTick: async () => {}, $t: key => i18n.t(key),
+    $refs: { report: { querySelector: selector => selector === "#hdr"
+      ? { scrollWidth: 100, scrollHeight: 150 }
+      : { height: selector === ".reportDiv4" ? 150 * 2122 / 2092 : 150 } } },
+  };
+  await reportComponent.methods.doPDF.call(radarContext);
+  const radarDoc = documents[documents.length - 1];
+  assert.strictEqual(radarDoc.pages, 9, "radar margin overflow must not create page 6");
+  assert(radarDoc.images[4][5] <= 150, "radar image must fit page height");
+  assert(Math.abs(radarDoc.images[4][4] / radarDoc.images[4][5] -
+    100 / (150 * 2122 / 2092)) < 1e-10, "fixed sections must preserve aspect ratio");
   const failed = { ...reportComponent.data(), genPDF: 1,
     $nextTick: async () => {}, $refs: { report: null }, $t: key => i18n.t(key) };
   const originalError = console.error;

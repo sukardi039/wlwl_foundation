@@ -46,7 +46,9 @@ Findings contain translation keys and evidence rather than generated prose.
 English and Chinese templates render the same findings in the selected language,
 including translated action/style names. Missing action labels are explicitly
 identified in the selected language. Longer report sections are paginated
-in PDF exports without stretching their aspect ratio.
+in PDF exports without stretching their aspect ratio. Fixed-layout sections
+(including the radar chart and original takeaways) are scaled to fit one page;
+only variable-length personalised takeaways are split across pages.
 PDF pagination normalises canvas rounding within one source pixel of a page
 boundary to avoid effectively blank overflow pages.
 
