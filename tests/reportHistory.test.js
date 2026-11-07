@@ -129,9 +129,10 @@ assert.deepStrictEqual(compiler.compile(sfc.template.content).errors, []);
 assert(sfc.template.content.includes('class="report-frame history-frame"'));
 assert(sfc.template.content.includes('class="report-result-spacer"'));
 assert(sfc.template.content.includes('class="history-content"'));
-assert(sfc.styles[0].content.includes("background-size: max(100%, 1100px) auto;"),
-  "compact history pages must retain the standard report background scale");
-assert(sfc.styles[0].content.includes("background-repeat: no-repeat;"));
+assert(!sfc.styles[0].content.includes("background-size:"),
+  "history must inherit the standard report background scaling");
+assert(!sfc.styles[0].content.includes("height: auto;"),
+  "history must retain the full standard report frame height");
 const component = load(sfc.script.content, request => request === "vuex" ? require(request) : engine).default;
 Vue.use(VueI18n);
 Vue.use(Vuex);

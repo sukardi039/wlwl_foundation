@@ -5,7 +5,7 @@
       :key="index"
       class="report-history-page"
     >
-      <v-container class="report-frame history-frame" :style="exporting ? { minHeight: (pageHeight - 24) + 'px' } : {}">
+      <v-container class="report-frame history-frame" :style="exporting ? { height: (pageHeight - 24) + 'px' } : {}">
       <v-row class="report-result-spacer"><v-col /></v-row>
       <v-row>
       <v-col cols="1" />
@@ -89,7 +89,7 @@ export default {
   props: { data: { type: Object, required: true } },
   data() {
     return { metrics: ["skills", "morale", "efficiency"], heights: {}, availableHeight: Infinity,
-      pageHeight: 1650, oversized: false, exporting: false };
+      pageHeight: 1674, oversized: false, exporting: false };
   },
   computed: {
     ...mapState({ paramdata: "paramdata" }),
@@ -141,7 +141,7 @@ export default {
         });
         const bodyHeight = blocks.reduce((total, block) =>
           total + block.getBoundingClientRect().height, 0);
-        // Measure content, not the empty space introduced by the page's min-height.
+        // Measure content independently of the full-height background frame.
         const card = page.querySelector(".history-content");
         const content = card.closest(".row").getBoundingClientRect().bottom -
           page.getBoundingClientRect().top;
@@ -158,7 +158,6 @@ export default {
     async prepareForExport(width, height) {
       this.exporting = true;
       const page = this.$el.querySelector(".report-history-page");
-      const frame = page.querySelector(".history-frame");
       this.pageHeight = Math.floor(height * page.scrollWidth / width);
       await this.$nextTick();
       this.measurePages();
@@ -172,7 +171,7 @@ export default {
     },
     async finishExport() {
       this.exporting = false;
-      this.pageHeight = 1650;
+      this.pageHeight = 1674;
       await this.$nextTick();
       this.measurePages();
       await this.$nextTick();
@@ -182,12 +181,6 @@ export default {
 </script>
 
 <style scoped>
-.history-frame {
-  height: auto;
-  background-size: max(100%, 1100px) auto;
-  background-repeat: no-repeat;
-  background-position: left top;
-}
 .history-content {
   font-size: 13px;
   line-height: 1.4;
