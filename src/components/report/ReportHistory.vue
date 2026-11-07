@@ -137,18 +137,22 @@ export default {
       this.$el.querySelectorAll(".report-history-page").forEach(page => {
         const blocks = Array.from(page.querySelectorAll("[data-history-day]"));
         blocks.forEach(block => {
-          heights[block.dataset.historyDay] = block.getBoundingClientRect().height;
+          heights[block.dataset.historyDay] = block.offsetHeight;
         });
         const bodyHeight = blocks.reduce((total, block) =>
-          total + block.getBoundingClientRect().height, 0);
-        // Measure content independently of the full-height background frame.
+          total + block.offsetHeight, 0);
+        // Measure intrinsic content, not a grid row stretched by the page layout.
         const card = page.querySelector(".history-content");
-        const content = card.closest(".row").getBoundingClientRect().bottom -
-          page.getBoundingClientRect().top;
         const frame = page.querySelector(".history-frame");
-        const padding = parseFloat(getComputedStyle(page).paddingBottom) +
-          parseFloat(getComputedStyle(frame).paddingBottom);
-        available = Math.min(available, this.pageHeight - (content - bodyHeight + padding) - 4);
+        const verticalPadding = element => {
+          const style = getComputedStyle(element);
+          return parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+        };
+        const overhead = card.offsetHeight - bodyHeight +
+          page.querySelector(".report-result-spacer").offsetHeight +
+          verticalPadding(page) + verticalPadding(frame) +
+          verticalPadding(card.closest(".col"));
+        available = Math.min(available, this.pageHeight - overhead - 4);
       });
       const oversized = Object.values(heights).some(height => height > available);
       if (this.oversized !== oversized) this.oversized = oversized;

@@ -76,6 +76,8 @@ Each reading uses the staff-card colour bands from `public/css/main.css`.
 History pages contain at most eight recorded entries, including the initial baseline
 and counting each same-day entry individually,
 with fewer entries when measured content exceeds the available page height.
+Height calculations use intrinsic table/card heights and explicit frame padding,
+not the bounds of a potentially stretched grid row.
 Entries sharing a day repeat the day label and may continue on the next page.
 Member headings and the legend repeat on each page. History pages use the
 standard nested Vuetify containers, responsive report frame, 200px row spacer,

@@ -188,6 +188,28 @@ for (const locale of ["en", "cn"]) {
 }
 vm.$destroy();
 
+const originalComputedStyle = global.getComputedStyle;
+global.getComputedStyle = () => ({ paddingTop: "12px", paddingBottom: "12px" });
+try {
+  const blocks = Array.from({ length: 8 }, (_, index) =>
+    ({ dataset: { historyDay: "entry-" + index }, offsetHeight: 100 }));
+  const frame = {};
+  const card = { offsetHeight: 1100, closest: () => ({}) };
+  const page = { querySelectorAll: () => blocks, querySelector: selector =>
+    selector === ".history-content" ? card : selector === ".history-frame" ? frame :
+      { offsetHeight: 200 } };
+  const context = { ...component.data(),
+    $el: { querySelectorAll: () => [page] } };
+  component.methods.measurePages.call(context);
+  assert.strictEqual(context.availableHeight, 1098);
+  assert.deepStrictEqual(paginateHistory(sameDay, context.heights, context.availableHeight)
+    .map(page => page.length), [8, 4],
+  "intrinsic measurements must preserve eight entries without using stretched row bounds");
+} finally {
+  if (originalComputedStyle === undefined) delete global.getComputedStyle;
+  else global.getComputedStyle = originalComputedStyle;
+}
+
 if (process.env.HISTORY_PREVIEW) {
   const preview = { content: { summary: Array.from({ length: 26 }, (_, day) => snapshot(day, day,
     Array.from({ length: 5 }, (_, index) => ({
