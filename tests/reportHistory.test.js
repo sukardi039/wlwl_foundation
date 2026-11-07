@@ -32,13 +32,18 @@ const before = JSON.stringify(fixture);
 const history = buildReportHistory(fixture);
 assert.strictEqual(JSON.stringify(fixture), before);
 assert.deepStrictEqual(history.members, ["Alex", "Departed"]);
-assert.deepStrictEqual(history.days.map(day => day.day), [0, 1, 2]);
-assert.deepStrictEqual(history.days[1].members.Alex.actions, ["_u.a_interview", "_u.a_coach"]);
-assert.strictEqual(history.days[1].members.Alex.skills, 45);
-assert.deepStrictEqual(history.days[1].members.Alex.changes, { skills: 15, morale: -5, efficiency: 2 });
+assert.deepStrictEqual(history.days.map(day => day.day), [0, 1, 1, 2]);
+assert.deepStrictEqual(history.days[1].members.Alex.actions, ["_u.a_interview"]);
+assert.deepStrictEqual(history.days[2].members.Alex.actions, ["_u.a_coach"]);
+assert.strictEqual(history.days[1].members.Alex.skills, 40);
+assert.strictEqual(history.days[2].members.Alex.skills, 45);
+assert.deepStrictEqual(history.days[1].members.Alex.changes, { skills: 10, morale: 0, efficiency: 1 });
+assert.deepStrictEqual(history.days[2].members.Alex.changes, { skills: 5, morale: -5, efficiency: 1 });
+assert.strictEqual(new Set(history.days.map(entry => entry.key)).size, 4);
 assert.deepStrictEqual(history.days[0].members.Alex.changes, { skills: null, morale: null, efficiency: null });
 assert.strictEqual(history.days[2].members.Departed, undefined, "missing members must not be carried forward");
-assert.deepStrictEqual(history.days[1].teamActions, ["_u.a_interview"]);
+assert.deepStrictEqual(history.days[1].teamActions, []);
+assert.deepStrictEqual(history.days[2].teamActions, ["_u.a_interview"]);
 assert(!history.incomplete);
 const paramdata = { action_det: { action: [
   { actionName: "coach", parentAction: "coach", displayKey: "_u.a_coach" },
@@ -64,7 +69,9 @@ const invalid = buildReportHistory({ content: { summary: [
   snapshot(1, "bad", [alex(80)]),
 ] } });
 assert(invalid.incomplete);
-assert.strictEqual(invalid.days.length, 2);
+assert.strictEqual(invalid.days.length, 3, "even repeated steps must be displayed separately");
+assert.notStrictEqual(invalid.days[1].key, invalid.days[2].key);
+assert.strictEqual(invalid.days[2].members.Alex.skills, 80);
 assert.strictEqual(invalid.days[1].day, null);
 assert.strictEqual(invalid.days[1].members.Alex.skills, null);
 assert.strictEqual(invalid.days[0].members.Alex.skills, 0);
@@ -84,6 +91,16 @@ const heights = Object.fromEntries(days.map(day => [day.key, 100]));
 assert.deepStrictEqual(paginateHistory(days, heights, 350).map(page => page.length),
   [3, 3, 3, 3, 3, 3, 3, 3, 2]);
 assert.deepStrictEqual(paginateHistory([]), []);
+const sameDay = Array.from({ length: 12 }, (_, index) => ({ key: "entry-" + index, day: 1 }));
+assert.strictEqual(paginateHistory(sameDay).length, 1, "day limit counts distinct days, not entries");
+const entryHeights = Object.fromEntries(sameDay.map(entry => [entry.key, 100]));
+const splitEntries = paginateHistory(sameDay, entryHeights, 350);
+assert.deepStrictEqual(splitEntries.map(page => page.length), [3, 3, 3, 3]);
+assert.deepStrictEqual(splitEntries.flat(), sameDay, "pagination must not lose or merge entries");
+const repeatedInitial = buildReportHistory({ content: { summary: [
+  snapshot(0, 0, [alex(0)]), snapshot(1, 0, [alex(10)]),
+] } });
+assert.strictEqual(repeatedInitial.days[1].members.Alex.changes.skills, 10);
 
 const messages = Object.fromEntries(["en", "cn"].map(locale =>
   [locale, JSON.parse(read("src\\locales\\" + locale + ".json"))]));
@@ -108,7 +125,8 @@ for (const locale of ["en", "cn"]) {
   const rendered = text(vm._render());
   assert(rendered.includes(labels(locale).title));
   assert(rendered.includes(labels(locale).baseline));
-  assert(rendered.includes("45 (+15)"));
+  assert(rendered.includes("40 (+10)"));
+  assert(rendered.includes("45 (+5)"));
   assert(rendered.includes("55 (-5)"));
   assert(rendered.includes("Departed"));
   assert(!rendered.includes("Not recorded"));
@@ -117,6 +135,12 @@ for (const locale of ["en", "cn"]) {
   assert.strictEqual(vm.readingLabel(invalid.days[1], "Alex", "skills"), "");
   assert.strictEqual(vm.readingLabel(invalid.days[0], "Alex", "skills"), "0");
   assert(!rendered.includes("DrillReport.history."));
+  const nodes = node => [node, ...(node.children || []).flatMap(nodes)];
+  const blocks = nodes(vm._render()).filter(node => node.tag === "tbody");
+  assert.strictEqual(blocks.length, 4);
+  assert.strictEqual(blocks.filter(node =>
+    text(nodes(node).find(child => child.tag === "th")).trim() === "1").length, 2,
+    "same-day records must have separate blocks with repeated day labels");
 }
 vm.data = subactionFixture;
 assert.deepStrictEqual(vm.actions(vm.history.days[1], "Alex"), ["_u.a_coach1", "_u.a_interview"]);
@@ -188,4 +212,4 @@ if (process.env.HISTORY_PREVIEW) {
     </script>`;
   fs.writeFileSync(process.env.HISTORY_PREVIEW, html);
 }
-console.log("PASS: daily grouping, baseline, departed members, missing scores, signed changes, colour boundaries, 10-day/height limits, bilingual history rendering.");
+console.log("PASS: separate same-day entries, baseline, departed members, missing scores, signed changes, colour boundaries, 10-day/height limits, bilingual history rendering.");

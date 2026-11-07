@@ -60,8 +60,8 @@ boundary to avoid effectively blank overflow pages.
 
 Personalised reports include a daily member matrix immediately before the
 takeaways. It retains departed members and recorded Day 0 initial readings,
-groups multiple steps on the same recorded day, and shows the last readings
-with changes since each member's previous recorded readings. Recorded sub-actions
+shows every recorded entry separately in step order, including multiple entries
+on the same day, with changes since each member's previous recorded entry. Recorded sub-actions
 replace their main action using the action definitions' `parentAction` mapping;
 main actions remain when no sub-action is recorded. Redundant team main actions
 are omitted when member sub-actions already represent them in the same snapshot.
@@ -69,11 +69,12 @@ No net change is attributed to one action. Missing actions/readings and cells
 for members absent from a day's history remain blank, not zero; departed members'
 earlier readings remain visible.
 Each reading uses the staff-card colour bands from `public/css/main.css`.
-History pages contain at most ten recorded days (plus the initial baseline),
-with fewer days when measured content exceeds the available page height.
+History pages contain at most ten distinct recorded days (plus the initial baseline),
+with fewer entries when measured content exceeds the available page height.
+Entries sharing a day repeat the day label and may continue on the next page.
 Member headings and the legend repeat on each page. PDF export discovers these
 pages dynamically and measures them against the existing PDF page dimensions,
-keeping whole days together rather than slicing table rows. A single day too
+keeping whole entries together rather than slicing table rows. A single entry too
 tall for the page produces an explicit export error instead of unreadable scaling.
 The administrator's legacy-report setting also hides this new history section.
 

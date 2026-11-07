@@ -35,27 +35,21 @@ export function buildReportHistory(data, paramdata) {
     const representedParents = new Set(keys.map(key => parents.get(key)).filter(Boolean));
     return keys.filter(key => !representedParents.has(key));
   };
-  const seenSteps = new Set();
-  const groups = new Map();
+  const records = [];
   const snapshots = values(content && content.summary).filter(snapshot => {
     const valid = snapshot && Number.isInteger(numeric(snapshot.step)) && numeric(snapshot.step) >= 0 &&
       snapshot.member && typeof snapshot.member === "object";
     if (!valid) result.incomplete = true;
     return valid;
   }).sort((a, b) => Number(a.step) - Number(b.step));
-  snapshots.forEach(snapshot => {
+  snapshots.forEach((snapshot, index) => {
     const step = Number(snapshot.step);
-    if (seenSteps.has(step)) return;
-    seenSteps.add(step);
     const recordedDay = numeric(snapshot.day);
     const day = Number.isInteger(recordedDay) && recordedDay >= 0 ? recordedDay : null;
     if (day === null) result.incomplete = true;
-    const key = day === null ? "step-" + step : "day-" + day;
-    let group = groups.get(key);
-    if (!group) {
-      group = { key, day, members: Object.create(null), teamActions: [] };
-      groups.set(key, group);
-    }
+    const group = { key: "step-" + step + "-" + index, day,
+      members: Object.create(null), teamActions: [] };
+    records.push(group);
     const memberSubactions = new Set(values(snapshot.member).flatMap(member =>
       actionKeys(member).map(key => parents.get(key)).filter(Boolean)));
     actionKeys(snapshot.team).filter(key => !memberSubactions.has(key)).forEach(action => {
@@ -68,8 +62,7 @@ export function buildReportHistory(data, paramdata) {
       }
       const name = member.staff;
       if (!result.members.includes(name)) result.members.push(name);
-      const previous = group.members[name];
-      const actions = previous ? previous.actions.slice() : [];
+      const actions = [];
       actionKeys(member).forEach(action => {
         if (!actions.includes(action)) actions.push(action);
       });
@@ -83,7 +76,7 @@ export function buildReportHistory(data, paramdata) {
     });
   });
   const previous = new Map();
-  groups.forEach(group => {
+  records.forEach(group => {
     if (!Object.keys(group.members).length) {
       result.incomplete = true;
       return;
@@ -91,7 +84,7 @@ export function buildReportHistory(data, paramdata) {
     Object.entries(group.members).forEach(([name, entry]) => {
       const before = previous.get(name);
       metrics.forEach(metric => {
-        entry.changes[metric] = group.day !== 0 && before &&
+        entry.changes[metric] = before &&
           before[metric] !== null && entry[metric] !== null
           ? entry[metric] - before[metric] : null;
       });
@@ -106,19 +99,21 @@ export function paginateHistory(days, heights = {}, availableHeight = Infinity) 
   const pages = [];
   let page = [];
   let height = 0;
-  let count = 0;
+  let recordedDays = new Set();
   days.forEach(day => {
     const nextHeight = heights[day.key] || 0;
-    const isDay = day.day !== 0;
-    if (page.length && ((isDay && count >= 10) || height + nextHeight > availableHeight)) {
+    const dayKey = day.day === null ? day.key : day.day;
+    const isNewDay = day.day !== 0 && !recordedDays.has(dayKey);
+    if (page.length && ((isNewDay && recordedDays.size >= 10) ||
+        height + nextHeight > availableHeight)) {
       pages.push(page);
       page = [];
       height = 0;
-      count = 0;
+      recordedDays = new Set();
     }
     page.push(day);
     height += nextHeight;
-    if (isDay) count++;
+    if (day.day !== 0) recordedDays.add(dayKey);
   });
   if (page.length) pages.push(page);
   return pages;

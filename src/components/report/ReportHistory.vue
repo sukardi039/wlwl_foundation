@@ -149,7 +149,7 @@ export default {
       await this.$nextTick();
       if (this.oversized || Array.from(this.$el.querySelectorAll(".report-history-page"))
         .some(page => page.scrollHeight > this.pageHeight + 1)) {
-        throw new Error("History day exceeds PDF page height");
+        throw new Error("History entry exceeds PDF page height");
       }
     },
   },
