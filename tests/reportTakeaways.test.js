@@ -191,12 +191,41 @@ const componentNames = node => [
 assert(componentNames(baseVm._render()).includes("ReportPersonalTakeAways"));
 assert(componentNames(baseVm._render()).includes("ReportHistory"));
 assert(!componentNames(baseVm._render()).includes("ReportTakeAways"));
+assert.strictEqual(componentNames(baseVm._render()).filter(name => name === "ReportUnavailable").length, 2);
+assert(!componentNames(baseVm._render()).includes("ReportCompetencyRadar"));
+assert(!componentNames(baseVm._render()).includes("ReportCompetency"));
+const competence = { skillsCompetency: 5, moraleCompetency: 6, efficiencyCompetency: 7,
+  leaderShipCompetency: 8, driveCompetency: 9, totalCompetency: 35 };
+baseVm.data = { ...fixture, content: { ...fixture.content, competency: competence } };
+assert(componentNames(baseVm._render()).includes("ReportCompetency"));
+assert(!componentNames(baseVm._render()).includes("ReportCompetencyRadar"));
+baseVm.data = { ...fixture, content: { ...fixture.content,
+  competency: competence, avg_competency: competence } };
+assert(componentNames(baseVm._render()).includes("ReportCompetencyRadar"));
+assert(!componentNames(baseVm._render()).includes("ReportUnavailable"));
+for (const value of [undefined, null, {}, { ...competence, skillsCompetency: "" },
+  { ...competence, moraleCompetency: NaN }, { ...competence, efficiencyCompetency: 11 }]) {
+  assert.strictEqual(baseVm.validCompetency(value), false);
+}
+baseVm.data = fixture;
 baseVm.personalisedTakeaways = false;
 assert(componentNames(baseVm._render()).includes("ReportTakeAways"));
 assert(!componentNames(baseVm._render()).includes("ReportPersonalTakeAways"));
 assert(!componentNames(baseVm._render()).includes("ReportHistory"));
 baseVm.$destroy();
 vm.$destroy();
+const unavailableSfc = compiler.parseComponent(read("src\\components\\report\\ReportUnavailable.vue"));
+assert.deepStrictEqual(compiler.compile(unavailableSfc.template.content).errors, []);
+const unavailableComponent = loadScript(unavailableSfc.script.content).default;
+const unavailableVm = new Vue({ ...unavailableComponent,
+  ...compiler.compileToFunctions(unavailableSfc.template.content), i18n,
+  propsData: { title: "DrillReport.competency-title" } });
+for (const locale of ["en", "cn"]) {
+  i18n.locale = locale;
+  assert(text(unavailableVm._render()).includes(messages[locale].DrillReport["competency-unavailable"]));
+}
+assert(unavailableSfc.template.content.includes('class="report-frame"'));
+unavailableVm.$destroy();
 
 async function testPdf() {
   const report = compiler.parseComponent(read("src\\components\\CoreModule\\DrillReport.vue"));

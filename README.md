@@ -96,6 +96,9 @@ pages dynamically and measures them against the existing PDF page dimensions,
 keeping whole entries together rather than slicing table rows. A single entry too
 tall for the page produces an explicit export error instead of unreadable scaling.
 The administrator's legacy-report setting also hides this new history section.
+Missing or invalid competency data produces an explicit unavailable notice on
+the competency/radar page instead of a Vue render failure or an empty PDF canvas.
+The radar also requires valid comparison scores; no missing scores are inferred.
 
 Run focused recommendation and bilingual-render checks:
 ```

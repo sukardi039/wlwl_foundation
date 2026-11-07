@@ -21,13 +21,17 @@
         </div>
         <div class="reportDiv4">
     <ReportCompetencyRadar
+        v-if="radarAvailable"
         :data="data"
     />
+    <ReportUnavailable v-else title="DrillReport.competency-radar-title" />
         </div>
         <div class="reportDiv5">
     <ReportCompetency
+        v-if="competencyAvailable"
         :data="data"
     />
+    <ReportUnavailable v-else title="DrillReport.competency-title" />
         </div>
         <div class="reportDiv6">
     <ReportDistribute 
@@ -71,6 +75,7 @@ import ReportFood4Thought from "./ReportFood4Thought.vue";
 import ReportTakeAways from "./ReportTakeAways.vue";
 import ReportPersonalTakeAways from "./ReportPersonalTakeAways.vue";
 import ReportHistory from "./ReportHistory.vue";
+import ReportUnavailable from "./ReportUnavailable.vue";
 import ReportDisclaim from "./ReportDisclaim.vue";
 import ReportAbout from "./ReportAbout.vue";
 export default {
@@ -92,6 +97,7 @@ export default {
         ReportTakeAways,
         ReportPersonalTakeAways,
         ReportHistory,
+        ReportUnavailable,
         ReportDisclaim,
         ReportAbout,
     },
@@ -105,13 +111,30 @@ export default {
         personalisedTakeaways: { type: Boolean, default: true },
     },
     computed: {
+        competencyAvailable() {
+            const content = this.data && this.data.content;
+            return this.validCompetency(content && content.competency);
+        },
+        radarAvailable() {
+            const content = this.data && this.data.content;
+            return this.competencyAvailable && this.validCompetency(content && content.avg_competency);
+        },
         ...mapState({
             signedinuser: "signedinuser",
             paramdata: "paramdata",
         }),
     },
     methods: {
-
+        validCompetency(value) {
+            return !!value && typeof value === "object" &&
+                ["skillsCompetency", "moraleCompetency", "efficiencyCompetency",
+                    "leaderShipCompetency", "driveCompetency"].every(key => {
+                    const score = value[key];
+                    return (typeof score === "number" ||
+                        (typeof score === "string" && score.trim())) &&
+                        Number.isFinite(Number(score)) && Number(score) >= 0 && Number(score) <= 10;
+                });
+        },
     },
 }
 </script>
