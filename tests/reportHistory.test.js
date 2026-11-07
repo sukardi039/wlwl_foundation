@@ -123,6 +123,9 @@ for (const key of Object.keys(labels("en"))) {
 }
 const sfc = compiler.parseComponent(read("src\\components\\report\\ReportHistory.vue"));
 assert.deepStrictEqual(compiler.compile(sfc.template.content).errors, []);
+assert(sfc.template.content.includes('class="report-frame report-history-page"'));
+assert(sfc.template.content.includes('class="report-result-spacer"'));
+assert(sfc.template.content.includes('class="history-content"'));
 const component = load(sfc.script.content, request => request === "vuex" ? require(request) : engine).default;
 Vue.use(VueI18n);
 Vue.use(Vuex);
@@ -186,14 +189,17 @@ if (process.env.HISTORY_PREVIEW) {
       efficiency: 45 + index * 8, action: day ? "_u.a_interview/_u.a_coach" : "",
     })))) } };
   const css = read("public\\css\\main.css").match(/\.value-(?:hh|mh|ml|ll)\s*\{[^}]+\}/g).join("\n");
+  const frameCss = read("public\\css\\main.css").match(/\.report-(?:frame|result-spacer)\s*\{[^}]+\}/g)
+    .join("\n").replace('url("/app-images/reporthead.jpg")',
+      'url("data:image/jpeg;base64,' + fs.readFileSync(path.join(root, "public", "app-images", "reporthead.jpg")).toString("base64") + '")');
   const html = `<!doctype html><meta charset="utf-8"><style>
     body { font-family: Arial, sans-serif; margin: 0; } * { box-sizing: border-box; }
-    ${css}\n${sfc.styles[0].content}</style><div id="app"></div>
+    ${css}\n${frameCss}\n${sfc.styles[0].content}</style><div id="app"></div>
     <script>${fs.readFileSync(require.resolve("vue/dist/vue.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("vue-i18n/dist/vue-i18n.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("html2canvas/dist/html2canvas.min.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("jspdf/dist/jspdf.umd.min.js"), "utf8")}</script>
-    <script>${fs.readFileSync(require.resolve("vuex/dist/vuex.js"), "utf8")}</script>
+    <script>${fs.readFileSync(path.join(path.dirname(require.resolve("vuex")), "vuex.js"), "utf8")}</script>
     <script>
     const engine = (() => { const exports = {}; ${transform(read("src\\utils\\reportHistory.js"))} return exports; })();
     const component = (() => { const exports = {}; const require = key => key === "vuex" ? Vuex : engine;

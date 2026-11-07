@@ -3,9 +3,11 @@
     <section
       v-for="(page, index) in pages"
       :key="index"
-      class="report-history-page"
+      class="report-frame report-history-page"
       :style="{ minHeight: pageHeight + 'px' }"
     >
+      <div class="report-result-spacer" aria-hidden="true"></div>
+      <div class="history-content">
       <header>
         <h2>{{ $t("DrillReport.history.title") }}</h2>
         <p>{{ $t("DrillReport.history.explain") }}</p>
@@ -64,6 +66,7 @@
         </tbody>
       </table>
       <footer>{{ $t("DrillReport.history.page", { page: index + 1, pages: pages.length }) }}</footer>
+      </div>
     </section>
   </div>
 </template>
@@ -130,10 +133,11 @@ export default {
         const bodyHeight = blocks.reduce((total, block) =>
           total + block.getBoundingClientRect().height, 0);
         // Measure content, not the empty space introduced by the page's min-height.
-        const content = page.querySelector("footer").getBoundingClientRect().bottom -
-          page.querySelector("header").getBoundingClientRect().top;
-        const padding = parseFloat(getComputedStyle(page).paddingTop) +
-          parseFloat(getComputedStyle(page).paddingBottom);
+        const card = page.querySelector(".history-content");
+        const content = card.getBoundingClientRect().bottom -
+          page.getBoundingClientRect().top;
+        const padding = parseFloat(getComputedStyle(page).paddingBottom) +
+          parseFloat(getComputedStyle(card).marginBottom);
         available = Math.min(available, this.pageHeight - (content - bodyHeight + padding) - 4);
       });
       const oversized = Object.values(heights).some(height => height > available);
@@ -161,28 +165,38 @@ export default {
 <style scoped>
 .report-history-page {
   width: 1100px;
+  height: auto;
   box-sizing: border-box;
-  padding: 36px 28px;
-  background: white;
+  padding: 12px;
   margin-bottom: 24px;
 }
+.history-content {
+  margin: 12px 8.333333%;
+  padding: 16px;
+  background: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.history-content h2 { font-size: 20px; }
 .report-history-page header p { margin: 8px 0; }
 .history-legend span { display: inline-block; padding: 3px 8px; margin: 0 3px; }
 .history-legend .value-ll, .history-low { color: white; }
 .history-notice { color: #9b1c1c; }
-.history-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 14px; }
+.history-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
 .history-table th, .history-table td {
   border: 1px solid #bbb;
-  padding: 5px 6px;
+  padding: 4px 5px;
   text-align: center;
   overflow-wrap: anywhere;
   vertical-align: middle;
 }
 .history-table thead th { background: #eee; }
-.history-day-column { width: 70px; }
-.history-detail-column { width: 150px; }
+.history-day-column { width: 55px; }
+.history-detail-column { width: 120px; }
 .history-table tbody { break-inside: avoid; }
 .history-table tbody + tbody { border-top: 3px solid #888; }
 .history-actions { text-align: left !important; }
-.report-history-page footer { padding-top: 12px; text-align: right; font-size: 13px; }
+.report-history-page footer { padding-top: 12px; text-align: right; font-size: 12px; }
 </style>

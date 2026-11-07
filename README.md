@@ -76,7 +76,11 @@ Each reading uses the staff-card colour bands from `public/css/main.css`.
 History pages contain at most ten distinct recorded days (plus the initial baseline),
 with fewer entries when measured content exceeds the available page height.
 Entries sharing a day repeat the day label and may continue on the next page.
-Member headings and the legend repeat on each page. PDF export discovers these
+Member headings and the legend repeat on each page. History pages use the
+standard report background, with the shared 200px top spacer
+and inset white content card. Compact 12px table text preserves room for member
+columns without placing content over the background's header.
+PDF export discovers these
 pages dynamically and measures them against the existing PDF page dimensions,
 keeping whole entries together rather than slicing table rows. A single entry too
 tall for the page produces an explicit export error instead of unreadable scaling.
