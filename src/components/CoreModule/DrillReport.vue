@@ -45,7 +45,7 @@
         <v-card-text>
           <v-alert v-if="exportError" type="error">{{ exportError }}</v-alert>
           <section id="theReport" ref="report">
-            <ReportBase :data="data" :personalisedTakeaways="personalisedTakeaways" />
+            <ReportBase ref="reportBase" :data="data" :personalisedTakeaways="personalisedTakeaways" />
           </section>
         </v-card-text>
       </v-card>
@@ -83,6 +83,7 @@ export default {
         ".reportDiv5",
         ".reportDiv6",
         ".reportDiv7",
+        ".report-history-page",
         ".reportDiv8",
       ],
       forPDF: [],
@@ -106,16 +107,20 @@ export default {
         const header = report.querySelector("#hdr");
         const width = header.scrollWidth;
         const height = header.scrollHeight;
-        this.forPDF = this.listPDF.map(selector => report.querySelector(selector));
+        const history = this.$refs.reportBase && this.$refs.reportBase.$refs.history;
+        if (history) await history.prepareForExport(width, height);
+        this.forPDF = this.listPDF.flatMap(selector => selector === ".report-history-page"
+          ? (this.personalisedTakeaways ? Array.from(report.querySelectorAll(selector)) : [])
+          : [report.querySelector(selector)]);
         this.len = this.forPDF.length;
         this.x = 0;
         const doc = new jsPDF("p", "px", [width, height]);
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
-        for (const [index, section] of this.forPDF.entries()) {
+        for (const section of this.forPDF) {
           const canvas = await html2canvas(section);
           const image = canvas.toDataURL("image/jpeg", 0.8);
-          const paginate = this.personalisedTakeaways && this.listPDF[index] === ".reportDiv8";
+          const paginate = this.personalisedTakeaways && section.matches(".reportDiv8");
           if (!paginate) {
             const scale = Math.min(pageWidth / canvas.width, pageHeight / canvas.height);
             const imageWidth = canvas.width * scale;

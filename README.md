@@ -54,11 +54,27 @@ including translated action/style names. Missing action labels are explicitly
 identified in the selected language. Longer report sections are paginated
 in PDF exports without stretching their aspect ratio. Fixed-layout sections
 (including the radar chart and original takeaways) are scaled to fit one page;
-only variable-length personalised takeaways are split across pages.
+variable-length personalised takeaways are split across pages.
 PDF pagination normalises canvas rounding within one source pixel of a page
 boundary to avoid effectively blank overflow pages.
+
+Personalised reports include a daily member matrix immediately before the
+takeaways. It retains departed members and recorded Day 0 initial readings,
+groups multiple steps on the same recorded day, and shows the last readings
+with changes since each member's previous recorded readings. All recorded
+member and team action labels are shown without attributing a net change to
+one action. Missing values remain explicitly unrecorded, not zero.
+Each reading uses the staff-card colour bands from `public/css/main.css`.
+History pages contain at most ten recorded days (plus the initial baseline),
+with fewer days when measured content exceeds the available page height.
+Member headings and the legend repeat on each page. PDF export discovers these
+pages dynamically and measures them against the existing PDF page dimensions,
+keeping whole days together rather than slicing table rows. A single day too
+tall for the page produces an explicit export error instead of unreadable scaling.
+The administrator's legacy-report setting also hides this new history section.
 
 Run focused recommendation and bilingual-render checks:
 ```
 node tests\reportTakeaways.test.js
+node tests\reportHistory.test.js
 ```

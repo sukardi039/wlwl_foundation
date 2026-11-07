@@ -189,10 +189,12 @@ const componentNames = node => [
   ...(node.children || []).flatMap(componentNames),
 ];
 assert(componentNames(baseVm._render()).includes("ReportPersonalTakeAways"));
+assert(componentNames(baseVm._render()).includes("ReportHistory"));
 assert(!componentNames(baseVm._render()).includes("ReportTakeAways"));
 baseVm.personalisedTakeaways = false;
 assert(componentNames(baseVm._render()).includes("ReportTakeAways"));
 assert(!componentNames(baseVm._render()).includes("ReportPersonalTakeAways"));
+assert(!componentNames(baseVm._render()).includes("ReportHistory"));
 baseVm.$destroy();
 vm.$destroy();
 
@@ -248,20 +250,22 @@ async function testPdf() {
       $refs: { report: { querySelector: selector => {
         selectors.push(selector);
         return selector === "#hdr" ? { scrollWidth: 100, scrollHeight: 150 }
-          : { height: selector === ".reportDiv8" && personalisedTakeaways ? 450 : 150 };
-      } } },
+          : { height: selector === ".reportDiv8" && personalisedTakeaways ? 450 : 150,
+            matches: value => value === selector };
+      }, querySelectorAll: () => personalisedTakeaways
+        ? Array.from({ length: 3 }, () => ({ height: 150, matches: () => false })) : [] } },
     };
     await reportComponent.methods.doPDF.call(context);
     const doc = documents[documents.length - 1];
     assert(selectors.includes(".reportDiv8"));
-    assert.strictEqual(context.len, 9);
-    assert.strictEqual(context.x, 9);
-    assert.strictEqual(doc.pages, personalisedTakeaways ? 11 : 9);
+    assert.strictEqual(context.len, personalisedTakeaways ? 12 : 9);
+    assert.strictEqual(context.x, context.len);
+    assert.strictEqual(doc.pages, personalisedTakeaways ? 14 : 9);
     assert.strictEqual(doc.images.length, doc.pages);
     assert.strictEqual(doc.filename, "Fixture-2026-11-01.pdf");
     assert.strictEqual(context.genPDF, 0);
     assert.strictEqual(context.exportError, "");
-    assert.strictEqual(doc.images[8][5], personalisedTakeaways ? 450 : 150,
+    assert.strictEqual(doc.images[personalisedTakeaways ? 11 : 8][5], personalisedTakeaways ? 450 : 150,
       "long sections must retain their aspect ratio");
   }
   for (const [height, expectedPages] of [
@@ -273,7 +277,8 @@ async function testPdf() {
       $nextTick: async () => {}, $t: key => i18n.t(key),
       $refs: { report: { querySelector: selector => selector === "#hdr"
         ? { scrollWidth: 100, scrollHeight: 150 }
-        : { height: selector === ".reportDiv8" ? height : 150 } } },
+        : { height: selector === ".reportDiv8" ? height : 150, matches: value => value === selector },
+        querySelectorAll: () => [] } },
     };
     await reportComponent.methods.doPDF.call(context);
     const doc = documents[documents.length - 1];
@@ -287,7 +292,8 @@ async function testPdf() {
     $nextTick: async () => {}, $t: key => i18n.t(key),
     $refs: { report: { querySelector: selector => selector === "#hdr"
       ? { scrollWidth: 100, scrollHeight: 150 }
-      : { height: selector === ".reportDiv4" ? 150 * 2122 / 2092 : 150 } } },
+      : { height: selector === ".reportDiv4" ? 150 * 2122 / 2092 : 150,
+        matches: value => value === selector }, querySelectorAll: () => [] } },
   };
   await reportComponent.methods.doPDF.call(radarContext);
   const radarDoc = documents[documents.length - 1];
@@ -295,6 +301,38 @@ async function testPdf() {
   assert(radarDoc.images[4][5] <= 150, "radar image must fit page height");
   assert(Math.abs(radarDoc.images[4][4] / radarDoc.images[4][5] -
     100 / (150 * 2122 / 2092)) < 1e-10, "fixed sections must preserve aspect ratio");
+  for (const historyPages of [1, 2, 6]) {
+    let prepared = false;
+    const historySections = Array.from({ length: historyPages }, () =>
+      ({ height: 150, matches: () => false }));
+    const context = {
+      ...reportComponent.data(), personalisedTakeaways: true,
+      data: { content: { analysis: { reportUser: "History", reportDate: "2026-11-01" } } },
+      $nextTick: async () => {}, $t: key => i18n.t(key),
+      $refs: {
+        reportBase: { $refs: { history: { prepareForExport: async (width, height) => {
+          assert.strictEqual(width, 100);
+          assert.strictEqual(height, 150);
+          prepared = true;
+        } } } },
+        report: {
+          querySelector: selector => selector === "#hdr" ? { scrollWidth: 100, scrollHeight: 150 }
+            : { height: 150, matches: value => value === selector },
+          querySelectorAll: selector => {
+            assert(prepared, "history must be measured before discovering its pages");
+            assert.strictEqual(selector, ".report-history-page");
+            return historySections;
+          },
+        },
+      },
+    };
+    await reportComponent.methods.doPDF.call(context);
+    const doc = documents[documents.length - 1];
+    assert.strictEqual(doc.pages, 9 + historyPages);
+    assert.deepStrictEqual(context.forPDF.slice(8, 8 + historyPages), historySections,
+      "all history pages must immediately precede the evaluation");
+    assert.strictEqual(context.exportError, "");
+  }
   const failed = { ...reportComponent.data(), genPDF: 1,
     $nextTick: async () => {}, $refs: { report: null }, $t: key => i18n.t(key) };
   const originalError = console.error;

@@ -39,6 +39,7 @@
         :data="data"
     />
         </div>
+    <ReportHistory v-if="personalisedTakeaways" ref="history" :data="data" />
         <div class="reportDiv8">
     <ReportPersonalTakeAways
         v-if="personalisedTakeaways"
@@ -69,6 +70,7 @@ import ReportEfficiency from "./ReportEfficiency.vue";
 import ReportFood4Thought from "./ReportFood4Thought.vue";
 import ReportTakeAways from "./ReportTakeAways.vue";
 import ReportPersonalTakeAways from "./ReportPersonalTakeAways.vue";
+import ReportHistory from "./ReportHistory.vue";
 import ReportDisclaim from "./ReportDisclaim.vue";
 import ReportAbout from "./ReportAbout.vue";
 export default {
@@ -89,6 +91,7 @@ export default {
         ReportFood4Thought,
         ReportTakeAways,
         ReportPersonalTakeAways,
+        ReportHistory,
         ReportDisclaim,
         ReportAbout,
     },

@@ -1,0 +1,110 @@
+const metrics = ["skills", "morale", "efficiency"];
+
+function numeric(value) {
+  if (typeof value !== "number" && typeof value !== "string") return null;
+  if (typeof value === "string" && !value.trim()) return null;
+  const result = Number(value);
+  return Number.isFinite(result) ? result : null;
+}
+
+function values(value) {
+  return value && typeof value === "object" ? Object.values(value) : [];
+}
+
+export function readingColour(value) {
+  if (value === null) return "";
+  return value > 75 ? "value-hh" : value > 50 ? "value-mh"
+    : value > 25 ? "value-ml" : "value-ll";
+}
+
+export function buildReportHistory(data) {
+  const result = { members: [], days: [], incomplete: false };
+  const content = data && data.content;
+  const seenSteps = new Set();
+  const groups = new Map();
+  const snapshots = values(content && content.summary).filter(snapshot => {
+    const valid = snapshot && Number.isInteger(numeric(snapshot.step)) && numeric(snapshot.step) >= 0 &&
+      snapshot.member && typeof snapshot.member === "object";
+    if (!valid) result.incomplete = true;
+    return valid;
+  }).sort((a, b) => Number(a.step) - Number(b.step));
+  snapshots.forEach(snapshot => {
+    const step = Number(snapshot.step);
+    if (seenSteps.has(step)) return;
+    seenSteps.add(step);
+    const recordedDay = numeric(snapshot.day);
+    const day = Number.isInteger(recordedDay) && recordedDay >= 0 ? recordedDay : null;
+    if (day === null) result.incomplete = true;
+    const key = day === null ? "step-" + step : "day-" + day;
+    let group = groups.get(key);
+    if (!group) {
+      group = { key, day, members: Object.create(null), teamActions: [] };
+      groups.set(key, group);
+    }
+    const teamAction = snapshot.team && snapshot.team.action;
+    if (typeof teamAction === "string" && teamAction.trim() &&
+        !group.teamActions.includes(teamAction)) group.teamActions.push(teamAction);
+    values(snapshot.member).forEach(member => {
+      if (!member || typeof member.staff !== "string" || !member.staff.trim()) {
+        result.incomplete = true;
+        return;
+      }
+      const name = member.staff;
+      if (!result.members.includes(name)) result.members.push(name);
+      const previous = group.members[name];
+      const actions = previous ? previous.actions.slice() : [];
+      if (typeof member.action === "string") {
+        member.action.split("/").filter(Boolean).forEach(action => {
+          if (!actions.includes(action)) actions.push(action);
+        });
+      }
+      const entry = { actions, changes: {} };
+      metrics.forEach(metric => {
+        const value = numeric(member[metric]);
+        entry[metric] = value !== null && value >= 0 && value <= 100 ? value : null;
+        if (entry[metric] === null) result.incomplete = true;
+      });
+      group.members[name] = entry;
+    });
+  });
+  const previous = new Map();
+  groups.forEach(group => {
+    if (!Object.keys(group.members).length) {
+      result.incomplete = true;
+      return;
+    }
+    Object.entries(group.members).forEach(([name, entry]) => {
+      const before = previous.get(name);
+      metrics.forEach(metric => {
+        entry.changes[metric] = group.day !== 0 && before &&
+          before[metric] !== null && entry[metric] !== null
+          ? entry[metric] - before[metric] : null;
+      });
+      previous.set(name, entry);
+    });
+    result.days.push(group);
+  });
+  return result;
+}
+
+export function paginateHistory(days, heights = {}, availableHeight = Infinity) {
+  const pages = [];
+  let page = [];
+  let height = 0;
+  let count = 0;
+  days.forEach(day => {
+    const nextHeight = heights[day.key] || 0;
+    const isDay = day.day !== 0;
+    if (page.length && ((isDay && count >= 10) || height + nextHeight > availableHeight)) {
+      pages.push(page);
+      page = [];
+      height = 0;
+      count = 0;
+    }
+    page.push(day);
+    height += nextHeight;
+    if (isDay) count++;
+  });
+  if (page.length) pages.push(page);
+  return pages;
+}
