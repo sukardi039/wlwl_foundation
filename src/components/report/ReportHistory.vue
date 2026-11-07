@@ -41,7 +41,6 @@
             <th scope="row">{{ $t("DrillReport.history.actions") }}</th>
             <td v-for="member in history.members" :key="member" class="history-actions">
               <div v-for="action in actions(day, member)" :key="action">{{ actionLabel(action) }}</div>
-              <span v-if="!actions(day, member).length">{{ unavailable }}</span>
             </td>
           </tr>
           <tr v-if="day.teamActions.length">
@@ -69,6 +68,7 @@
 
 <script>
 import { buildReportHistory, paginateHistory, readingColour } from "../../utils/reportHistory";
+import { mapState } from "vuex";
 
 export default {
   name: "ReportHistory",
@@ -78,12 +78,12 @@ export default {
       pageHeight: 1650, oversized: false };
   },
   computed: {
-    history() { return buildReportHistory(this.data); },
+    ...mapState({ paramdata: "paramdata" }),
+    history() { return buildReportHistory(this.data, this.paramdata); },
     pages() {
       const pages = paginateHistory(this.history.days, this.heights, this.availableHeight);
       return pages.length ? pages : [[]];
     },
-    unavailable() { return this.$t("DrillReport.history.unavailable"); },
     missingActionLabels() {
       return this.history.days.some(day => [...day.teamActions,
         ...Object.values(day.members).flatMap(member => member.actions)]
@@ -112,7 +112,7 @@ export default {
     },
     readingLabel(day, member, metric) {
       const value = this.reading(day, member, metric);
-      if (value === null) return this.unavailable;
+      if (value === null) return "";
       const change = day.members[member].changes[metric];
       return this.format(value) + (change === null ? "" :
         " (" + (change > 0 ? "+" : "") + this.format(change) + ")");

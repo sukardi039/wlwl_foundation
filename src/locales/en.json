@@ -131,7 +131,7 @@
     "description": "Description",
     "skillsProfile": "Work Ability",
     "moraleProfile": "Work Motivation",
-    "efficiencyProfile": "Work Performance",
+    "efficiencyProfile": "Performance",
     "selfIntroduction": "Self-Introduction",
     "interviewSpeech": "Interview Introduction",
     "experience": "Industry Experience"
@@ -1111,13 +1111,12 @@
     "food4thought-q4-explain": "The impact of leadership actions is influenced by team members' situations and mindsets. Continuous communication, evaluation, and adaptation are crucial for your success.",
     "history": {
       "title": "Daily Progress and Action History",
-      "explain": "Members are shown across the columns. Each day shows the last recorded readings and the actions recorded that day, including team-wide actions. Parentheses show the change since that member's previous recorded readings, not the effect of any one action. Days without records are not inferred.",
+      "explain": "Members are shown across the columns. Each day shows the last recorded readings and sub-actions, falling back to the main action when no sub-action is recorded. Parentheses show the change since that member's previous recorded readings, not the effect of any one action. Unavailable cells are blank; days without records are not inferred.",
       "legend": "Reading colours (same bands as the staff cards):",
       "detail": "Record",
       "actions": "Member actions recorded",
       "team-actions": "Team actions recorded",
       "baseline": "Initial (Day 0)",
-      "unavailable": "Not recorded",
       "empty": "No usable member history is available.",
       "incomplete": "Some history details are missing or invalid. Available readings are shown; unavailable values are not treated as zero.",
       "oversized": "A day's record is too tall for one PDF page. PDF export cannot keep this day together at the current page size.",

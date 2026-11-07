@@ -61,9 +61,13 @@ boundary to avoid effectively blank overflow pages.
 Personalised reports include a daily member matrix immediately before the
 takeaways. It retains departed members and recorded Day 0 initial readings,
 groups multiple steps on the same recorded day, and shows the last readings
-with changes since each member's previous recorded readings. All recorded
-member and team action labels are shown without attributing a net change to
-one action. Missing values remain explicitly unrecorded, not zero.
+with changes since each member's previous recorded readings. Recorded sub-actions
+replace their main action using the action definitions' `parentAction` mapping;
+main actions remain when no sub-action is recorded. Redundant team main actions
+are omitted when member sub-actions already represent them in the same snapshot.
+No net change is attributed to one action. Missing actions/readings and cells
+for members absent from a day's history remain blank, not zero; departed members'
+earlier readings remain visible.
 Each reading uses the staff-card colour bands from `public/css/main.css`.
 History pages contain at most ten recorded days (plus the initial baseline),
 with fewer days when measured content exceeds the available page height.

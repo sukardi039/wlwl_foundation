@@ -5,6 +5,7 @@ const babel = require("@babel/core");
 const compiler = require("vue-template-compiler");
 const Vue = require("vue");
 const VueI18n = require("vue-i18n");
+const Vuex = require("vuex");
 
 const root = path.resolve(__dirname, "..");
 const read = file => fs.readFileSync(path.join(root, file), "utf8");
@@ -39,6 +40,24 @@ assert.deepStrictEqual(history.days[0].members.Alex.changes, { skills: null, mor
 assert.strictEqual(history.days[2].members.Departed, undefined, "missing members must not be carried forward");
 assert.deepStrictEqual(history.days[1].teamActions, ["_u.a_interview"]);
 assert(!history.incomplete);
+const paramdata = { action_det: { action: [
+  { actionName: "coach", parentAction: "coach", displayKey: "_u.a_coach" },
+  { actionName: "coach1", parentAction: "coach", displayKey: "_u.a_coach1" },
+  { actionName: "interview", parentAction: "interview", displayKey: "_u.a_interview" },
+  { actionName: "interview1", parentAction: "interview", displayKey: "_u.a_interview1" },
+] } };
+const subactionFixture = { content: { summary: [
+  snapshot(0, 0, [alex(0)]),
+  snapshot(1, 1, [alex(40, 50, 60, "_u.a_coach/_u.a_coach1/_u.a_interview")]),
+  snapshot(2, 2, [alex(41, 51, 61, "_u.a_interview/_u.a_interview1")],
+    { action: "_u.a_interview" }),
+  snapshot(3, 3, [alex(42, 52, 62)], { action: "_u.a_coach" }),
+] } };
+const subactions = buildReportHistory(subactionFixture, paramdata);
+assert.deepStrictEqual(subactions.days[1].members.Alex.actions, ["_u.a_coach1", "_u.a_interview"]);
+assert.deepStrictEqual(subactions.days[2].members.Alex.actions, ["_u.a_interview1"]);
+assert.deepStrictEqual(subactions.days[2].teamActions, []);
+assert.deepStrictEqual(subactions.days[3].teamActions, ["_u.a_coach"]);
 const invalid = buildReportHistory({ content: { summary: [
   snapshot(0, 0, [alex(0)]), snapshot(1, "bad", [alex("", null, 101)]),
   snapshot(2, 2, [null]), snapshot("bad", 3, [alex(30)]),
@@ -76,11 +95,13 @@ for (const key of Object.keys(labels("en"))) {
 }
 const sfc = compiler.parseComponent(read("src\\components\\report\\ReportHistory.vue"));
 assert.deepStrictEqual(compiler.compile(sfc.template.content).errors, []);
-const component = load(sfc.script.content, () => engine).default;
+const component = load(sfc.script.content, request => request === "vuex" ? require(request) : engine).default;
 Vue.use(VueI18n);
+Vue.use(Vuex);
+const store = new Vuex.Store({ state: { paramdata } });
 const i18n = new VueI18n({ locale: "en", messages });
 const vm = new Vue({ ...component, ...compiler.compileToFunctions(sfc.template.content),
-  i18n, propsData: { data: fixture } });
+  i18n, store, propsData: { data: fixture } });
 const text = node => (node.text || "") + (node.children || []).map(text).join(" ");
 for (const locale of ["en", "cn"]) {
   i18n.locale = locale;
@@ -90,9 +111,16 @@ for (const locale of ["en", "cn"]) {
   assert(rendered.includes("45 (+15)"));
   assert(rendered.includes("55 (-5)"));
   assert(rendered.includes("Departed"));
-  assert(rendered.includes(labels(locale).unavailable));
+  assert(!rendered.includes("Not recorded"));
+  assert(!rendered.includes("未记录"));
+  assert.strictEqual(vm.readingLabel(history.days[1], "Departed", "skills"), "");
+  assert.strictEqual(vm.readingLabel(invalid.days[1], "Alex", "skills"), "");
+  assert.strictEqual(vm.readingLabel(invalid.days[0], "Alex", "skills"), "0");
   assert(!rendered.includes("DrillReport.history."));
 }
+vm.data = subactionFixture;
+assert.deepStrictEqual(vm.actions(vm.history.days[1], "Alex"), ["_u.a_coach1", "_u.a_interview"]);
+assert.strictEqual(vm.readingLabel(vm.history.days[0], "Alex", "skills"), "0");
 vm.$destroy();
 
 if (process.env.HISTORY_PREVIEW) {
@@ -110,15 +138,17 @@ if (process.env.HISTORY_PREVIEW) {
     <script>${fs.readFileSync(require.resolve("vue-i18n/dist/vue-i18n.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("html2canvas/dist/html2canvas.min.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("jspdf/dist/jspdf.umd.min.js"), "utf8")}</script>
+    <script>${fs.readFileSync(require.resolve("vuex/dist/vuex.js"), "utf8")}</script>
     <script>
     const engine = (() => { const exports = {}; ${transform(read("src\\utils\\reportHistory.js"))} return exports; })();
-    const component = (() => { const exports = {}; const require = () => engine;
+    const component = (() => { const exports = {}; const require = key => key === "vuex" ? Vuex : engine;
       ${transform(sfc.script.content)} return exports.default; })();
     component.template = ${JSON.stringify(sfc.template.content)};
     const messages = ${JSON.stringify(messages)};
     const fixture = ${JSON.stringify(preview)};
     const i18n = new VueI18n({ locale: "en", messages });
-    window.historyVm = new Vue({ ...component, i18n, propsData: { data: fixture } }).$mount("#app");
+    const store = new Vuex.Store({ state: { paramdata: ${JSON.stringify(paramdata)} } });
+    window.historyVm = new Vue({ ...component, i18n, store, propsData: { data: fixture } }).$mount("#app");
     const exporter = (() => { const exports = {}; const require = key => {
       if (key === "jspdf") return jspdf.jsPDF;
       if (key === "html2canvas") return html2canvas;

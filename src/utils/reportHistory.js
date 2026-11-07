@@ -17,9 +17,24 @@ export function readingColour(value) {
     : value > 25 ? "value-ml" : "value-ll";
 }
 
-export function buildReportHistory(data) {
+export function buildReportHistory(data, paramdata) {
   const result = { members: [], days: [], incomplete: false };
   const content = data && data.content;
+  const definitions = values(paramdata && paramdata.action_det && paramdata.action_det.action);
+  const parents = new Map();
+  definitions.forEach(action => {
+    if (!action || action.actionName === action.parentAction) return;
+    const parent = definitions.find(entry => entry && entry.actionName === action.parentAction);
+    if (parent && typeof parent.displayKey === "string" && typeof action.displayKey === "string") {
+      parents.set(action.displayKey, parent.displayKey);
+    }
+  });
+  const actionKeys = record => {
+    const keys = record && typeof record.action === "string"
+      ? record.action.split("/").map(key => key.trim()).filter(Boolean) : [];
+    const representedParents = new Set(keys.map(key => parents.get(key)).filter(Boolean));
+    return keys.filter(key => !representedParents.has(key));
+  };
   const seenSteps = new Set();
   const groups = new Map();
   const snapshots = values(content && content.summary).filter(snapshot => {
@@ -41,9 +56,11 @@ export function buildReportHistory(data) {
       group = { key, day, members: Object.create(null), teamActions: [] };
       groups.set(key, group);
     }
-    const teamAction = snapshot.team && snapshot.team.action;
-    if (typeof teamAction === "string" && teamAction.trim() &&
-        !group.teamActions.includes(teamAction)) group.teamActions.push(teamAction);
+    const memberSubactions = new Set(values(snapshot.member).flatMap(member =>
+      actionKeys(member).map(key => parents.get(key)).filter(Boolean)));
+    actionKeys(snapshot.team).filter(key => !memberSubactions.has(key)).forEach(action => {
+      if (!group.teamActions.includes(action)) group.teamActions.push(action);
+    });
     values(snapshot.member).forEach(member => {
       if (!member || typeof member.staff !== "string" || !member.staff.trim()) {
         result.incomplete = true;
@@ -53,11 +70,9 @@ export function buildReportHistory(data) {
       if (!result.members.includes(name)) result.members.push(name);
       const previous = group.members[name];
       const actions = previous ? previous.actions.slice() : [];
-      if (typeof member.action === "string") {
-        member.action.split("/").filter(Boolean).forEach(action => {
-          if (!actions.includes(action)) actions.push(action);
-        });
-      }
+      actionKeys(member).forEach(action => {
+        if (!actions.includes(action)) actions.push(action);
+      });
       const entry = { actions, changes: {} };
       metrics.forEach(metric => {
         const value = numeric(member[metric]);
