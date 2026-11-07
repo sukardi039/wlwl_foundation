@@ -43,7 +43,7 @@ assert.strictEqual(new Set(history.days.map(entry => entry.key)).size, 4);
 assert.deepStrictEqual(history.days[0].members.Alex.changes, { skills: null, morale: null, efficiency: null });
 assert.strictEqual(history.days[2].members.Departed, undefined, "missing members must not be carried forward");
 assert.deepStrictEqual(history.days[1].teamActions, []);
-assert.deepStrictEqual(history.days[2].teamActions, ["_u.a_interview"]);
+assert.deepStrictEqual(history.days[2].teamActions, [], "member actions exclude group events");
 assert(!history.incomplete);
 const paramdata = { action_det: { action: [
   { actionName: "coach", parentAction: "coach", displayKey: "_u.a_coach" },
@@ -63,6 +63,17 @@ assert.deepStrictEqual(subactions.days[1].members.Alex.actions, ["_u.a_coach1", 
 assert.deepStrictEqual(subactions.days[2].members.Alex.actions, ["_u.a_interview1"]);
 assert.deepStrictEqual(subactions.days[2].teamActions, []);
 assert.deepStrictEqual(subactions.days[3].teamActions, ["_u.a_coach"]);
+const eventFixture = { content: { summary: [
+  snapshot(2, 1, [alex(45, 55, 72, "_u.a_coach1")]),
+  snapshot(0, 0, [alex(30), { ...alex(80), staff: "Departed" }]),
+  snapshot(1, 1, [alex(40, 60, 71)], { action: "_u.a_interview" }),
+] } };
+const events = buildReportHistory(eventFixture, paramdata);
+assert.deepStrictEqual(events.days[1].teamActions, ["_u.a_interview"]);
+assert.deepStrictEqual(events.days[1].members.Alex.actions, []);
+assert.deepStrictEqual(events.days[2].teamActions, []);
+assert.deepStrictEqual(events.days[2].members.Alex.actions, ["_u.a_coach1"]);
+assert.deepStrictEqual(events.days.map(entry => entry.day), [0, 1, 1]);
 const invalid = buildReportHistory({ content: { summary: [
   snapshot(0, 0, [alex(0)]), snapshot(1, "bad", [alex("", null, 101)]),
   snapshot(2, 2, [null]), snapshot("bad", 3, [alex(30)]),
@@ -145,6 +156,26 @@ for (const locale of ["en", "cn"]) {
 vm.data = subactionFixture;
 assert.deepStrictEqual(vm.actions(vm.history.days[1], "Alex"), ["_u.a_coach1", "_u.a_interview"]);
 assert.strictEqual(vm.readingLabel(vm.history.days[0], "Alex", "skills"), "0");
+vm.data = eventFixture;
+for (const locale of ["en", "cn"]) {
+  i18n.locale = locale;
+  const nodes = node => [node, ...(node.children || []).flatMap(nodes)];
+  const blocks = nodes(vm._render()).filter(node => node.tag === "tbody");
+  assert.strictEqual(blocks.length, 3);
+  blocks.forEach(block => {
+    assert.strictEqual(block.children.filter(node => node.tag === "tr").length, 4,
+      "each entry has only one action/event row plus three readings");
+  });
+  const system = text(blocks[1]);
+  assert(system.includes(labels(locale)["team-actions"]));
+  assert(!system.includes(labels(locale).actions));
+  const user = text(blocks[2]);
+  assert(user.includes(labels(locale).actions));
+  assert(!user.includes(labels(locale)["team-actions"]));
+  const sharedCell = nodes(blocks[1]).find(node => node.tag === "td" &&
+    node.data && node.data.attrs && node.data.attrs.colspan === 2);
+  assert(sharedCell, "group events span member columns");
+}
 vm.$destroy();
 
 if (process.env.HISTORY_PREVIEW) {

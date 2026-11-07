@@ -1111,11 +1111,11 @@
     "food4thought-q4-explain": "The impact of leadership actions is influenced by team members' situations and mindsets. Continuous communication, evaluation, and adaptation are crucial for your success.",
     "history": {
       "title": "Daily Progress and Action History",
-      "explain": "Members are shown across the columns. Every recorded entry is shown separately in order, including multiple entries on the same day, with its readings and sub-actions. The main action is shown when no sub-action is recorded. Parentheses show the change since that member's previous recorded entry, not the effect of any one action. Unavailable cells are blank; days without records are not inferred.",
+      "explain": "Members are shown across the columns. Every recorded entry is shown separately in order, including multiple entries on the same day. Each entry shows either individual user actions or a system-generated group event, not both. Group events are not user decisions. Individual actions show sub-actions, or the main action when no sub-action is recorded. Parentheses show the change since that member's previous recorded entry, not the effect of any one action. Unavailable cells are blank; days without records are not inferred.",
       "legend": "Reading colours (same bands as the staff cards):",
       "detail": "Record",
       "actions": "Member actions recorded",
-      "team-actions": "Team actions recorded",
+      "team-actions": "System-generated group event",
       "baseline": "Initial (Day 0)",
       "empty": "No usable member history is available.",
       "incomplete": "Some history details are missing or invalid. Available readings are shown; unavailable values are not treated as zero.",

@@ -50,9 +50,7 @@ export function buildReportHistory(data, paramdata) {
     const group = { key: "step-" + step + "-" + index, day,
       members: Object.create(null), teamActions: [] };
     records.push(group);
-    const memberSubactions = new Set(values(snapshot.member).flatMap(member =>
-      actionKeys(member).map(key => parents.get(key)).filter(Boolean)));
-    actionKeys(snapshot.team).filter(key => !memberSubactions.has(key)).forEach(action => {
+    actionKeys(snapshot.team).forEach(action => {
       if (!group.teamActions.includes(action)) group.teamActions.push(action);
     });
     values(snapshot.member).forEach(member => {
@@ -74,6 +72,9 @@ export function buildReportHistory(data, paramdata) {
       });
       group.members[name] = entry;
     });
+    if (Object.values(group.members).some(member => member.actions.length)) {
+      group.teamActions = [];
+    }
   });
   const previous = new Map();
   records.forEach(group => {

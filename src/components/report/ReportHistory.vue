@@ -35,19 +35,21 @@
         </thead>
         <tbody v-for="day in page" :key="day.key" :data-history-day="day.key">
           <tr>
-            <th :rowspan="day.teamActions.length ? 5 : 4" scope="rowgroup">
+            <th rowspan="4" scope="rowgroup">
               {{ dayLabel(day.day) }}
             </th>
-            <th scope="row">{{ $t("DrillReport.history.actions") }}</th>
-            <td v-for="member in history.members" :key="member" class="history-actions">
-              <div v-for="action in actions(day, member)" :key="action">{{ actionLabel(action) }}</div>
-            </td>
-          </tr>
-          <tr v-if="day.teamActions.length">
-            <th scope="row">{{ $t("DrillReport.history.team-actions") }}</th>
-            <td :colspan="history.members.length" class="history-actions">
-              <div v-for="action in day.teamActions" :key="action">{{ actionLabel(action) }}</div>
-            </td>
+            <template v-if="day.teamActions.length">
+              <th scope="row">{{ $t("DrillReport.history.team-actions") }}</th>
+              <td :colspan="history.members.length" class="history-actions">
+                <div v-for="action in day.teamActions" :key="action">{{ actionLabel(action) }}</div>
+              </td>
+            </template>
+            <template v-else>
+              <th scope="row">{{ $t("DrillReport.history.actions") }}</th>
+              <td v-for="member in history.members" :key="member" class="history-actions">
+                <div v-for="action in actions(day, member)" :key="action">{{ actionLabel(action) }}</div>
+              </td>
+            </template>
           </tr>
           <tr v-for="metric in metrics" :key="metric">
             <th scope="row">{{ $t("DrillHistory." + metric) }}</th>

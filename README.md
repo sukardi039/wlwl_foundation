@@ -63,8 +63,12 @@ takeaways. It retains departed members and recorded Day 0 initial readings,
 shows every recorded entry separately in step order, including multiple entries
 on the same day, with changes since each member's previous recorded entry. Recorded sub-actions
 replace their main action using the action definitions' `parentAction` mapping;
-main actions remain when no sub-action is recorded. Redundant team main actions
-are omitted when member sub-actions already represent them in the same snapshot.
+main actions remain when no sub-action is recorded. Individual user actions and
+system-generated group events are mutually exclusive per entry. Entries with
+recorded member actions display only those actions; otherwise recorded team
+events occupy a single shared row labelled as system-generated, not user decisions.
+System events retain their recorded step order, including earlier entries on the
+same day as later user actions.
 No net change is attributed to one action. Missing actions/readings and cells
 for members absent from a day's history remain blank, not zero; departed members'
 earlier readings remain visible.
