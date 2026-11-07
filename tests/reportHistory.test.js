@@ -123,10 +123,10 @@ for (const key of Object.keys(labels("en"))) {
 }
 const sfc = compiler.parseComponent(read("src\\components\\report\\ReportHistory.vue"));
 assert.deepStrictEqual(compiler.compile(sfc.template.content).errors, []);
-assert(sfc.template.content.includes('class="report-frame report-history-page"'));
+assert(sfc.template.content.includes('class="report-frame history-frame"'));
 assert(sfc.template.content.includes('class="report-result-spacer"'));
 assert(sfc.template.content.includes('class="history-content"'));
-assert(sfc.styles[0].content.includes("background-size: 1100px 1650px;"),
+assert(sfc.styles[0].content.includes("background-size: max(100%, 1100px) auto;"),
   "compact history pages must retain the standard report background scale");
 assert(sfc.styles[0].content.includes("background-repeat: no-repeat;"));
 const component = load(sfc.script.content, request => request === "vuex" ? require(request) : engine).default;
@@ -197,8 +197,10 @@ if (process.env.HISTORY_PREVIEW) {
       'url("data:image/jpeg;base64,' + fs.readFileSync(path.join(root, "public", "app-images", "reporthead.jpg")).toString("base64") + '")');
   const html = `<!doctype html><meta charset="utf-8"><style>
     body { font-family: Arial, sans-serif; margin: 0; } * { box-sizing: border-box; }
-    ${css}\n${frameCss}\n${sfc.styles[0].content}</style><section id="theReport"><div id="app"></div></section>
+    ${read("node_modules\\vuetify\\dist\\vuetify.min.css")}
+    ${css}\n${frameCss}\n${sfc.styles[0].content}</style><section id="theReport"><div class="container"><div id="app"></div></div></section>
     <script>${fs.readFileSync(require.resolve("vue/dist/vue.js"), "utf8")}</script>
+    <script>${read("node_modules\\vuetify\\dist\\vuetify.min.js")}</script>
     <script>${fs.readFileSync(require.resolve("vue-i18n/dist/vue-i18n.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("html2canvas/dist/html2canvas.min.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("jspdf/dist/jspdf.umd.min.js"), "utf8")}</script>
@@ -212,7 +214,7 @@ if (process.env.HISTORY_PREVIEW) {
     const fixture = ${JSON.stringify(preview)};
     const i18n = new VueI18n({ locale: "en", messages });
     const store = new Vuex.Store({ state: { paramdata: ${JSON.stringify(paramdata)} } });
-    window.historyVm = new Vue({ ...component, i18n, store, propsData: { data: fixture } }).$mount("#app");
+    window.historyVm = new Vue({ ...component, i18n, store, vuetify: new Vuetify(), propsData: { data: fixture } }).$mount("#app");
     const exporter = (() => { const exports = {}; const require = key => {
       if (key === "jspdf") return jspdf.jsPDF;
       if (key === "html2canvas") return html2canvas;

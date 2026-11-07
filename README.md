@@ -77,13 +77,15 @@ History pages contain at most ten distinct recorded days (plus the initial basel
 with fewer entries when measured content exceeds the available page height.
 Entries sharing a day repeat the day label and may continue on the next page.
 Member headings and the legend repeat on each page. History pages use the
-standard report background, with the shared 200px top spacer
+standard nested Vuetify containers, responsive report frame, 200px row spacer,
+one-column side gutters and Vuetify content card,
 and inset white content card. Compact 12px table text preserves room for member
 columns without placing content over the background's header.
 On-screen history backgrounds end after their content, without a forced full-page
 empty tail. Full page height is applied temporarily for PDF capture and restored
-after success or failure. The background retains the standard 1100px by 1650px
-scale and top-left alignment on compact pages; it is cropped, not rescaled.
+after success or failure. Compact frames preserve the shared background's `cover`
+scale for a standard 1650px-tall report: image width is at least 1100px and expands
+with wider frames. It is cropped vertically, not stretched to the shorter content height.
 PDF capture uses a fixed canvas scale of 1 and removes
 other report frames from each cloned capture to avoid rendering the entire long
 report at once. Invalid capture dimensions are logged before reaching jsPDF.

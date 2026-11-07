@@ -1,13 +1,17 @@
 <template>
   <div class="report-history">
-    <section
+    <v-container
       v-for="(page, index) in pages"
       :key="index"
-      class="report-frame report-history-page"
-      :style="exporting ? { minHeight: pageHeight + 'px' } : {}"
+      class="report-history-page"
     >
-      <div class="report-result-spacer" aria-hidden="true"></div>
-      <div class="history-content">
+      <v-container class="report-frame history-frame" :style="exporting ? { minHeight: (pageHeight - 24) + 'px' } : {}">
+      <v-row class="report-result-spacer"><v-col /></v-row>
+      <v-row>
+      <v-col cols="1" />
+      <v-col>
+      <v-card>
+      <v-card-text class="history-content">
       <header>
         <h2>{{ $t("DrillReport.history.title") }}</h2>
         <p>{{ $t("DrillReport.history.explain") }}</p>
@@ -66,8 +70,13 @@
         </tbody>
       </table>
       <footer>{{ $t("DrillReport.history.page", { page: index + 1, pages: pages.length }) }}</footer>
-      </div>
-    </section>
+      </v-card-text>
+      </v-card>
+      </v-col>
+      <v-col cols="1" />
+      </v-row>
+      </v-container>
+    </v-container>
   </div>
 </template>
 
@@ -134,10 +143,11 @@ export default {
           total + block.getBoundingClientRect().height, 0);
         // Measure content, not the empty space introduced by the page's min-height.
         const card = page.querySelector(".history-content");
-        const content = card.getBoundingClientRect().bottom -
+        const content = card.closest(".row").getBoundingClientRect().bottom -
           page.getBoundingClientRect().top;
+        const frame = page.querySelector(".history-frame");
         const padding = parseFloat(getComputedStyle(page).paddingBottom) +
-          parseFloat(getComputedStyle(card).marginBottom);
+          parseFloat(getComputedStyle(frame).paddingBottom);
         available = Math.min(available, this.pageHeight - (content - bodyHeight + padding) - 4);
       });
       const oversized = Object.values(heights).some(height => height > available);
@@ -148,6 +158,7 @@ export default {
     async prepareForExport(width, height) {
       this.exporting = true;
       const page = this.$el.querySelector(".report-history-page");
+      const frame = page.querySelector(".history-frame");
       this.pageHeight = Math.floor(height * page.scrollWidth / width);
       await this.$nextTick();
       this.measurePages();
@@ -171,22 +182,13 @@ export default {
 </script>
 
 <style scoped>
-.report-history-page {
-  width: 1100px;
+.history-frame {
   height: auto;
-  background-size: 1100px 1650px;
+  background-size: max(100%, 1100px) auto;
   background-repeat: no-repeat;
   background-position: left top;
-  box-sizing: border-box;
-  padding: 12px;
-  margin-bottom: 24px;
 }
 .history-content {
-  margin: 12px 8.333333%;
-  padding: 16px;
-  background: white;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   font-size: 13px;
   line-height: 1.4;
 }
