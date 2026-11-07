@@ -4,7 +4,7 @@
       v-for="(page, index) in pages"
       :key="index"
       class="report-frame report-history-page"
-      :style="{ minHeight: pageHeight + 'px' }"
+      :style="exporting ? { minHeight: pageHeight + 'px' } : {}"
     >
       <div class="report-result-spacer" aria-hidden="true"></div>
       <div class="history-content">
@@ -80,7 +80,7 @@ export default {
   props: { data: { type: Object, required: true } },
   data() {
     return { metrics: ["skills", "morale", "efficiency"], heights: {}, availableHeight: Infinity,
-      pageHeight: 1650, oversized: false };
+      pageHeight: 1650, oversized: false, exporting: false };
   },
   computed: {
     ...mapState({ paramdata: "paramdata" }),
@@ -146,6 +146,7 @@ export default {
       if (this.availableHeight !== available) this.availableHeight = available;
     },
     async prepareForExport(width, height) {
+      this.exporting = true;
       const page = this.$el.querySelector(".report-history-page");
       this.pageHeight = Math.floor(height * page.scrollWidth / width);
       await this.$nextTick();
@@ -157,6 +158,13 @@ export default {
         .some(page => page.scrollHeight > this.pageHeight + 1)) {
         throw new Error("History entry exceeds PDF page height");
       }
+    },
+    async finishExport() {
+      this.exporting = false;
+      this.pageHeight = 1650;
+      await this.$nextTick();
+      this.measurePages();
+      await this.$nextTick();
     },
   },
 };

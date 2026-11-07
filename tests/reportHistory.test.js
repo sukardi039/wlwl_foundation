@@ -194,7 +194,7 @@ if (process.env.HISTORY_PREVIEW) {
       'url("data:image/jpeg;base64,' + fs.readFileSync(path.join(root, "public", "app-images", "reporthead.jpg")).toString("base64") + '")');
   const html = `<!doctype html><meta charset="utf-8"><style>
     body { font-family: Arial, sans-serif; margin: 0; } * { box-sizing: border-box; }
-    ${css}\n${frameCss}\n${sfc.styles[0].content}</style><div id="app"></div>
+    ${css}\n${frameCss}\n${sfc.styles[0].content}</style><section id="theReport"><div id="app"></div></section>
     <script>${fs.readFileSync(require.resolve("vue/dist/vue.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("vue-i18n/dist/vue-i18n.js"), "utf8")}</script>
     <script>${fs.readFileSync(require.resolve("html2canvas/dist/html2canvas.min.js"), "utf8")}</script>
@@ -220,9 +220,10 @@ if (process.env.HISTORY_PREVIEW) {
       return exports.default; })();
     window.exportHistory = async () => {
       const header = document.createElement("div");
+      header.className = "report-frame";
       header.style.cssText = "width:1148px;height:1674px;background:white";
       header.textContent = "Report header";
-      document.body.appendChild(header);
+      document.querySelector("#theReport").prepend(header);
       const selectors = exporter.data().listPDF;
       const sections = new Map(selectors.filter(s => s !== ".report-history-page").map(s => [s, header]));
       let saved;

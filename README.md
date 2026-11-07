@@ -80,6 +80,11 @@ Member headings and the legend repeat on each page. History pages use the
 standard report background, with the shared 200px top spacer
 and inset white content card. Compact 12px table text preserves room for member
 columns without placing content over the background's header.
+On-screen history backgrounds end after their content, without a forced full-page
+empty tail. Full page height is applied temporarily for PDF capture and restored
+after success or failure. PDF capture uses a fixed canvas scale of 1 and removes
+other report frames from each cloned capture to avoid rendering the entire long
+report at once. Invalid capture dimensions are logged before reaching jsPDF.
 PDF export discovers these
 pages dynamically and measures them against the existing PDF page dimensions,
 keeping whole entries together rather than slicing table rows. A single entry too

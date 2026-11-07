@@ -101,13 +101,16 @@ export default {
   methods: {
     async doPDF() {
       this.exportError = "";
+      const history = this.$refs.reportBase && this.$refs.reportBase.$refs.history;
       try {
         await this.$nextTick();
         const report = this.$refs.report;
         const header = report.querySelector("#hdr");
         const width = header.scrollWidth;
         const height = header.scrollHeight;
-        const history = this.$refs.reportBase && this.$refs.reportBase.$refs.history;
+        if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
+          throw new Error("Report header has invalid dimensions: " + width + " x " + height);
+        }
         if (history) await history.prepareForExport(width, height);
         this.forPDF = this.listPDF.flatMap(selector => selector === ".report-history-page"
           ? (this.personalisedTakeaways ? Array.from(report.querySelectorAll(selector)) : [])
@@ -118,7 +121,23 @@ export default {
         const pageWidth = doc.internal.pageSize.getWidth();
         const pageHeight = doc.internal.pageSize.getHeight();
         for (const section of this.forPDF) {
-          const canvas = await html2canvas(section);
+          if (!section) throw new Error("Report section is missing");
+          const canvas = await html2canvas(section, {
+            scale: 1,
+            onclone: (document, clonedSection) => {
+              const clonedReport = clonedSection.closest("#theReport");
+              if (!clonedReport) return;
+              clonedReport.querySelectorAll(".report-frame").forEach(frame => {
+                if (!clonedSection.contains(frame) && frame !== clonedSection) frame.remove();
+              });
+              clonedSection.scrollIntoView();
+            },
+          });
+          if (!Number.isFinite(canvas.width) || canvas.width <= 0 ||
+              !Number.isFinite(canvas.height) || canvas.height <= 0) {
+            throw new Error("Report section " + section.className +
+              " produced an invalid canvas: " + canvas.width + " x " + canvas.height);
+          }
           const image = canvas.toDataURL("image/jpeg", 0.8);
           const paginate = this.personalisedTakeaways && section.matches(".reportDiv8");
           if (!paginate) {
@@ -154,7 +173,11 @@ export default {
         console.error("Failed to export drill report", error);
         this.exportError = this.$t("DrillReport.personal-takeaways.export-error");
       } finally {
-        this.genPDF = 0;
+        try {
+          if (history) await history.finishExport();
+        } finally {
+          this.genPDF = 0;
+        }
       }
     },
   },

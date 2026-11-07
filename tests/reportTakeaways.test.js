@@ -216,9 +216,11 @@ async function testPdf() {
     if (request === "vuex") return require(request);
     if (request === "../../utils/reportTakeaways") return engine;
     if (request === "jspdf") return Pdf;
-    if (request === "html2canvas") return async section => {
+    if (request === "html2canvas") return async (section, options) => {
       assert(section, "all requested report sections must exist");
-      return { width: 100, height: section.height,
+      assert.strictEqual(options.scale, 1);
+      assert.strictEqual(typeof options.onclone, "function");
+      return { width: section.width === undefined ? 100 : section.width, height: section.height,
         toDataURL: () => "data:image/jpeg;base64,fixture" };
     };
     return {};
@@ -314,7 +316,7 @@ async function testPdf() {
           assert.strictEqual(width, 100);
           assert.strictEqual(height, 150);
           prepared = true;
-        } } } },
+        }, finishExport: async () => { prepared = false; } } } },
         report: {
           querySelector: selector => selector === "#hdr" ? { scrollWidth: 100, scrollHeight: 150 }
             : { height: 150, matches: value => value === selector },
@@ -332,6 +334,7 @@ async function testPdf() {
     assert.deepStrictEqual(context.forPDF.slice(8, 8 + historyPages), historySections,
       "all history pages must immediately precede the evaluation");
     assert.strictEqual(context.exportError, "");
+    assert.strictEqual(prepared, false, "temporary PDF sizing must be restored");
   }
   const failed = { ...reportComponent.data(), genPDF: 1,
     $nextTick: async () => {}, $refs: { report: null }, $t: key => i18n.t(key) };
@@ -345,6 +348,36 @@ async function testPdf() {
   }
   assert(logged && failed.exportError);
   assert.strictEqual(failed.genPDF, 0);
+  for (const [width, height] of [[0, 150], [100, 0], [NaN, 150]]) {
+    let restored = false;
+    const invalid = {
+      ...reportComponent.data(), genPDF: 1, personalisedTakeaways: true,
+      $nextTick: async () => {}, $t: key => i18n.t(key),
+      $refs: {
+        reportBase: { $refs: { history: {
+          prepareForExport: async () => {}, finishExport: async () => { restored = true; },
+        } } },
+        report: {
+          querySelector: selector => selector === "#hdr" ? { scrollWidth: 100, scrollHeight: 150 }
+            : { width, height, className: selector, matches: () => false },
+          querySelectorAll: () => [],
+        },
+      },
+    };
+    const errors = [];
+    console.error = (...args) => errors.push(args);
+    try {
+      await reportComponent.methods.doPDF.call(invalid);
+    } finally {
+      console.error = originalError;
+    }
+    assert(errors[0][1].message.includes("invalid canvas"));
+    assert(invalid.exportError);
+    assert(restored);
+    assert.strictEqual(invalid.genPDF, 0);
+    assert.strictEqual(documents[documents.length - 1].images.length, 0,
+      "invalid coordinates must never reach jsPDF");
+  }
 }
 testPdf().then(() => {
   console.log("PASS: Type 2 boundaries, history ordering/changes, departed members, sparse/invalid evidence, ranking, immutability, bilingual rendering, legacy toggle and PDF pagination/errors.");
