@@ -174,6 +174,9 @@ export default {
 .report-history-page {
   width: 1100px;
   height: auto;
+  background-size: 1100px 1650px;
+  background-repeat: no-repeat;
+  background-position: left top;
   box-sizing: border-box;
   padding: 12px;
   margin-bottom: 24px;
