@@ -73,7 +73,8 @@ No net change is attributed to one action. Missing actions/readings and cells
 for members absent from a day's history remain blank, not zero; departed members'
 earlier readings remain visible.
 Each reading uses the staff-card colour bands from `public/css/main.css`.
-History pages contain at most ten distinct recorded days (plus the initial baseline),
+History pages contain at most eight recorded entries, including the initial baseline
+and counting each same-day entry individually,
 with fewer entries when measured content exceeds the available page height.
 Entries sharing a day repeat the day label and may continue on the next page.
 Member headings and the legend repeat on each page. History pages use the

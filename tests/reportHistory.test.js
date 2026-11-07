@@ -96,14 +96,17 @@ for (const [value, colour] of [[null, ""], [0, "value-ll"], [25, "value-ll"],
   assert.strictEqual(readingColour(value), colour);
 }
 const days = Array.from({ length: 26 }, (_, day) => ({ key: "day-" + day, day }));
-assert.deepStrictEqual(paginateHistory(days).map(page => page.length), [11, 10, 5]);
-assert.deepStrictEqual(paginateHistory(days.slice(1)).map(page => page.length), [10, 10, 5]);
+assert.deepStrictEqual(paginateHistory(days).map(page => page.length), [8, 8, 8, 2]);
+assert.deepStrictEqual(paginateHistory(days.slice(1)).map(page => page.length), [8, 8, 8, 1]);
 const heights = Object.fromEntries(days.map(day => [day.key, 100]));
 assert.deepStrictEqual(paginateHistory(days, heights, 350).map(page => page.length),
   [3, 3, 3, 3, 3, 3, 3, 3, 2]);
 assert.deepStrictEqual(paginateHistory([]), []);
 const sameDay = Array.from({ length: 12 }, (_, index) => ({ key: "entry-" + index, day: 1 }));
-assert.strictEqual(paginateHistory(sameDay).length, 1, "day limit counts distinct days, not entries");
+assert.deepStrictEqual(paginateHistory(sameDay).map(page => page.length), [8, 4],
+  "entry limit applies even when every entry shares the same day");
+assert.deepStrictEqual(paginateHistory(days.slice(0, 8)).map(page => page.length), [8]);
+assert.deepStrictEqual(paginateHistory(days.slice(0, 9)).map(page => page.length), [8, 1]);
 const entryHeights = Object.fromEntries(sameDay.map(entry => [entry.key, 100]));
 const splitEntries = paginateHistory(sameDay, entryHeights, 350);
 assert.deepStrictEqual(splitEntries.map(page => page.length), [3, 3, 3, 3]);
@@ -255,4 +258,4 @@ if (process.env.HISTORY_PREVIEW) {
     </script>`;
   fs.writeFileSync(process.env.HISTORY_PREVIEW, html);
 }
-console.log("PASS: separate same-day entries, baseline, departed members, missing scores, signed changes, colour boundaries, 10-day/height limits, bilingual history rendering.");
+console.log("PASS: separate same-day entries, baseline, departed members, missing scores, signed changes, colour boundaries, 8-entry/height limits, bilingual history rendering.");

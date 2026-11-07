@@ -100,21 +100,15 @@ export function paginateHistory(days, heights = {}, availableHeight = Infinity) 
   const pages = [];
   let page = [];
   let height = 0;
-  let recordedDays = new Set();
   days.forEach(day => {
     const nextHeight = heights[day.key] || 0;
-    const dayKey = day.day === null ? day.key : day.day;
-    const isNewDay = day.day !== 0 && !recordedDays.has(dayKey);
-    if (page.length && ((isNewDay && recordedDays.size >= 10) ||
-        height + nextHeight > availableHeight)) {
+    if (page.length && (page.length >= 8 || height + nextHeight > availableHeight)) {
       pages.push(page);
       page = [];
       height = 0;
-      recordedDays = new Set();
     }
     page.push(day);
     height += nextHeight;
-    if (day.day !== 0) recordedDays.add(dayKey);
   });
   if (page.length) pages.push(page);
   return pages;
